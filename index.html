@@ -213,7 +213,12 @@
 <textarea id="output" rows="15"></textarea>
 
 <!-- ================= SCRIPT ================= -->
+
+<script src="crimes.js"></script>
+
 <script>
+
+window.addEventListener("DOMContentLoaded", function () {
 
 // ================= TOGGLES =================
 document.getElementById("hasVehicle").onchange = function() {
@@ -232,12 +237,8 @@ document.getElementById("hasWitnesses").onchange = function() {
   document.getElementById("witnessFields").classList.toggle("hidden", !this.checked);
 };
 
-// ================= ADD OFFICER =================
-let officerCount = 0;
-
+// ================= OFFICERS =================
 function addOfficer() {
-  officerCount++;
-
   const container = document.getElementById("officerList");
 
   const div = document.createElement("div");
@@ -247,42 +248,22 @@ function addOfficer() {
   div.style.marginTop = "10px";
 
   div.innerHTML = `
-    <div class="box">
-      <label>Name</label>
-      <input class="officerName">
-    </div>
-
-    <div class="box">
-      <label>Rank</label>
-      <input class="officerRank">
-    </div>
-
-    <div class="box">
-      <label>Badge</label>
-      <input class="officerBadge">
-    </div>
-
-    <div class="box">
-      <label>Division</label>
-      <input class="officerDivision">
-    </div>
-
+    <div class="box"><label>Name</label><input class="officerName"></div>
+    <div class="box"><label>Rank</label><input class="officerRank"></div>
+    <div class="box"><label>Badge</label><input class="officerBadge"></div>
+    <div class="box"><label>Division</label><input class="officerDivision"></div>
     <div class="box full">
-      <button type="button" onclick="this.parentElement.parentElement.remove()">
-        Remove Officer
-      </button>
+      <button type="button" onclick="this.parentElement.parentElement.remove()">Remove Officer</button>
     </div>
   `;
 
   container.appendChild(div);
 }
 
-// ================= ADD WITNESS =================
-let witnessCount = 0;
+window.addOfficer = addOfficer;
 
+// ================= WITNESSES =================
 function addWitness() {
-  witnessCount++;
-
   const container = document.getElementById("witnessList");
 
   const div = document.createElement("div");
@@ -291,122 +272,126 @@ function addWitness() {
   div.style.marginTop = "10px";
 
   div.innerHTML = `
-    <div>
-      <label>Full Name</label><br>
-      <input class="witnessName"><br><br>
+    <label>Full Name</label><br>
+    <input class="witnessName"><br><br>
 
-      <label>Phone Number</label><br>
-      <input class="witnessPhone"><br><br>
+    <label>Phone Number</label><br>
+    <input class="witnessPhone"><br><br>
 
-      <label>ID / License Number</label><br>
-      <input class="witnessId"><br><br>
+    <label>ID / License Number</label><br>
+    <input class="witnessId"><br><br>
 
-      <button type="button" onclick="this.parentElement.parentElement.remove()">
-        Remove Witness
-      </button>
-    </div>
+    <button type="button" onclick="this.parentElement.remove()">Remove Witness</button>
   `;
 
   container.appendChild(div);
 }
 
-  // ================= CHARGES SYSTEM =================
+window.addWitness = addWitness;
+
+// ================= CHARGES =================
 let selectedCharges = [];
 
 const searchInput = document.getElementById("chargeSearch");
 const dropdown = document.getElementById("chargeDropdown");
 const selectedDiv = document.getElementById("selectedCharges");
 
-// flatten
-let allCrimes = [];
-Object.keys(crimesData).forEach(category => {
-  crimesData[category].forEach(crime => {
-    allCrimes.push(crime);
+// safety check
+if (typeof crimesData === "undefined") {
+  console.error("crimesData not loaded. Check crimes.js");
+} else {
+
+  // flatten
+  let allCrimes = [];
+
+  Object.keys(crimesData).forEach(category => {
+    crimesData[category].forEach(crime => {
+      allCrimes.push(crime);
+    });
   });
-});
 
-// search
-searchInput.addEventListener("input", function() {
-  const value = this.value.toLowerCase();
-  dropdown.innerHTML = "";
+  // search
+  searchInput.addEventListener("input", function() {
+    const value = this.value.toLowerCase();
+    dropdown.innerHTML = "";
 
-  if (!value) return;
+    if (!value) return;
 
-  const results = allCrimes.filter(c =>
-    c.crime.toLowerCase().includes(value)
-  );
+    const results = allCrimes.filter(c =>
+      c.crime.toLowerCase().includes(value)
+    );
 
-  results.slice(0, 10).forEach(crime => {
-    const item = document.createElement("div");
+    results.slice(0, 10).forEach(crime => {
+      const item = document.createElement("div");
 
-    const color = crime.classification === "Felony" ? "red" : "orange";
+      const color = crime.classification === "Felony" ? "red" : "orange";
 
-    item.style.cursor = "pointer";
-    item.style.padding = "5px";
-    item.style.borderBottom = "1px solid #ccc";
-    item.style.color = color;
+      item.style.cursor = "pointer";
+      item.style.padding = "5px";
+      item.style.borderBottom = "1px solid #ccc";
+      item.style.color = color;
 
-    item.innerText = `${crime.title} - ${crime.crime} (${crime.code})`;
+      item.innerText = `${crime.title} - ${crime.crime} (${crime.code})`;
 
-    item.onclick = () => addCharge(crime);
+      item.onclick = () => addCharge(crime);
 
-    dropdown.appendChild(item);
+      dropdown.appendChild(item);
+    });
   });
-});
 
-// add
-function addCharge(crime) {
-  if (selectedCharges.find(c => c.title === crime.title)) return;
+  function addCharge(crime) {
+    if (selectedCharges.find(c => c.title === crime.title)) return;
 
-  selectedCharges.push(crime);
-  renderSelected();
+    selectedCharges.push(crime);
+    renderSelected();
 
-  searchInput.value = "";
-  dropdown.innerHTML = "";
-}
-
-// render tags
-function renderSelected() {
-  selectedDiv.innerHTML = "";
-
-  selectedCharges.forEach((crime, index) => {
-    const tag = document.createElement("span");
-
-    const color = crime.classification === "Felony" ? "red" : "orange";
-
-    tag.style.display = "inline-block";
-    tag.style.margin = "3px";
-    tag.style.padding = "5px 8px";
-    tag.style.border = `1px solid ${color}`;
-    tag.style.borderRadius = "5px";
-    tag.style.color = color;
-
-    tag.innerHTML = `
-      ${crime.crime}
-      <b style="cursor:pointer; margin-left:5px;" onclick="removeCharge(${index})">×</b>
-    `;
-
-    selectedDiv.appendChild(tag);
-  });
-}
-
-// remove
-function removeCharge(index) {
-  selectedCharges.splice(index, 1);
-  renderSelected();
-}
-
-// close dropdown
-document.addEventListener("click", function(e) {
-  if (!searchInput.contains(e.target)) {
+    searchInput.value = "";
     dropdown.innerHTML = "";
   }
-});
 
-// ================= GENERATE (placeholder ainda) =================
-function generate() {
-  alert("Generate function coming next step");
+  function renderSelected() {
+    selectedDiv.innerHTML = "";
+
+    selectedCharges.forEach((crime, index) => {
+      const tag = document.createElement("span");
+
+      const color = crime.classification === "Felony" ? "red" : "orange";
+
+      tag.style.display = "inline-block";
+      tag.style.margin = "3px";
+      tag.style.padding = "5px 8px";
+      tag.style.border = `1px solid ${color}`;
+      tag.style.borderRadius = "5px";
+      tag.style.color = color;
+
+      tag.innerHTML = `
+        ${crime.crime}
+        <b style="cursor:pointer; margin-left:5px;" onclick="removeCharge(${index})">×</b>
+      `;
+
+      selectedDiv.appendChild(tag);
+    });
+  }
+
+  window.removeCharge = function(index) {
+    selectedCharges.splice(index, 1);
+    renderSelected();
+  };
+
+  document.addEventListener("click", function(e) {
+    if (!searchInput.contains(e.target)) {
+      dropdown.innerHTML = "";
+    }
+  });
+
 }
+
+// ================= GENERATE =================
+window.generate = function () {
+  alert("Generate ready for next step");
+};
+
+});
 
 </script>
 
