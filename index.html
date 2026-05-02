@@ -310,6 +310,99 @@ function addWitness() {
   container.appendChild(div);
 }
 
+  // ================= CHARGES SYSTEM =================
+let selectedCharges = [];
+
+const searchInput = document.getElementById("chargeSearch");
+const dropdown = document.getElementById("chargeDropdown");
+const selectedDiv = document.getElementById("selectedCharges");
+
+// flatten
+let allCrimes = [];
+Object.keys(crimesData).forEach(category => {
+  crimesData[category].forEach(crime => {
+    allCrimes.push(crime);
+  });
+});
+
+// search
+searchInput.addEventListener("input", function() {
+  const value = this.value.toLowerCase();
+  dropdown.innerHTML = "";
+
+  if (!value) return;
+
+  const results = allCrimes.filter(c =>
+    c.crime.toLowerCase().includes(value)
+  );
+
+  results.slice(0, 10).forEach(crime => {
+    const item = document.createElement("div");
+
+    const color = crime.classification === "Felony" ? "red" : "orange";
+
+    item.style.cursor = "pointer";
+    item.style.padding = "5px";
+    item.style.borderBottom = "1px solid #ccc";
+    item.style.color = color;
+
+    item.innerText = `${crime.title} - ${crime.crime} (${crime.code})`;
+
+    item.onclick = () => addCharge(crime);
+
+    dropdown.appendChild(item);
+  });
+});
+
+// add
+function addCharge(crime) {
+  if (selectedCharges.find(c => c.title === crime.title)) return;
+
+  selectedCharges.push(crime);
+  renderSelected();
+
+  searchInput.value = "";
+  dropdown.innerHTML = "";
+}
+
+// render tags
+function renderSelected() {
+  selectedDiv.innerHTML = "";
+
+  selectedCharges.forEach((crime, index) => {
+    const tag = document.createElement("span");
+
+    const color = crime.classification === "Felony" ? "red" : "orange";
+
+    tag.style.display = "inline-block";
+    tag.style.margin = "3px";
+    tag.style.padding = "5px 8px";
+    tag.style.border = `1px solid ${color}`;
+    tag.style.borderRadius = "5px";
+    tag.style.color = color;
+
+    tag.innerHTML = `
+      ${crime.crime}
+      <b style="cursor:pointer; margin-left:5px;" onclick="removeCharge(${index})">×</b>
+    `;
+
+    selectedDiv.appendChild(tag);
+  });
+}
+
+// remove
+function removeCharge(index) {
+  selectedCharges.splice(index, 1);
+  renderSelected();
+}
+
+// close dropdown
+document.addEventListener("click", function(e) {
+  if (!searchInput.contains(e.target)) {
+    dropdown.innerHTML = "";
+  }
+});
+
 // ================= GENERATE (placeholder ainda) =================
 function generate() {
   alert("Generate function coming next step");
