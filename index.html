@@ -3,70 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <title>LSSD Arrest Report Generator</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    h3 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .full {
+      grid-column: span 4;
+    }
+
+    .half {
+      grid-column: span 2;
+    }
+
+    .box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    textarea {
+      width: 100%;
+    }
+
+    button {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 
-<body style="font-family: Arial; max-width: 900px; margin: auto;">
+<body>
 
 <h2>LSSD Arrest Report Generator</h2>
 
 <!-- ================= SUSPECT ================= -->
-<h3>Suspect Information</h3>
+<h3>Suspect</h3>
 
-<label>Full Name:</label><br>
-<input id="suspectName"><br><br>
+<div class="grid">
+  <div class="box">
+    <label>Full Name</label>
+    <input id="suspectName">
+  </div>
 
-<label>Was the suspect in a vehicle?</label><br>
-<select id="hasVehicle">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
+  <div class="box">
+    <label>
+      <input type="checkbox" id="hasVehicle">
+      Suspect had a vehicle
+    </label>
+  </div>
+</div>
 
-<div id="vehicleFields" style="display:none; margin-left:20px;">
-  <label>Vehicle Model:</label><br>
-  <input id="vehicleModel"><br>
+<div id="vehicleFields" class="grid hidden">
+  <div class="box">
+    <label>Model</label>
+    <input id="vehicleModel">
+  </div>
 
-  <label>Vehicle Color:</label><br>
-  <input id="vehicleColor"><br>
+  <div class="box">
+    <label>Color</label>
+    <input id="vehicleColor">
+  </div>
 
-  <label>License Plate:</label><br>
-  <input id="vehiclePlate"><br><br>
+  <div class="box">
+    <label>Plate</label>
+    <input id="vehiclePlate">
+  </div>
 </div>
 
 <!-- ================= INCIDENT ================= -->
-<h3>Incident Information</h3>
+<h3>Incident</h3>
 
-<label>Date:</label><br>
-<input type="date" id="date"><br><br>
+<div class="grid">
+  <div class="box">
+    <label>Date</label>
+    <input type="date" id="date">
+  </div>
 
-<label>Time:</label><br>
-<input type="time" id="time"><br><br>
+  <div class="box">
+    <label>Time</label>
+    <input type="time" id="time">
+  </div>
 
-<label>Address:</label><br>
-<input id="address"><br><br>
+  <div class="box full">
+    <label>Address</label>
+    <input id="address">
+  </div>
+</div>
 
 <!-- ================= OFFICER ================= -->
-<h3>Officer Information</h3>
+<h3>Officer</h3>
 
-<label>Name:</label><br>
-<input id="officerName"><br>
+<div class="grid">
+  <div class="box">
+    <label>Name</label>
+    <input id="officerName">
+  </div>
 
-<label>Rank:</label><br>
-<input id="officerRank"><br>
+  <div class="box">
+    <label>Rank</label>
+    <input id="officerRank">
+  </div>
 
-<label>Badge Number:</label><br>
-<input id="officerBadge"><br>
+  <div class="box">
+    <label>Badge</label>
+    <input id="officerBadge">
+  </div>
 
-<label>Division:</label><br>
-<input id="officerDivision"><br><br>
+  <div class="box">
+    <label>Division</label>
+    <input id="officerDivision">
+  </div>
+</div>
 
-<label>Were additional officers involved?</label><br>
-<select id="hasOfficers">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
+<label>
+  <input type="checkbox" id="hasOfficers">
+  Additional officers involved
+</label>
 
-<div id="additionalOfficers" style="display:none; margin-left:20px;">
-  <button type="button" onclick="addOfficer()">+ Add Additional Officer</button>
+<div id="additionalOfficers" class="hidden">
+  <button onclick="addOfficer()">+ Add Additional Officer</button>
   <div id="officerList"></div>
 </div>
 
@@ -80,110 +154,80 @@
 <!-- ================= EVIDENCE ================= -->
 <h3>Evidence</h3>
 
-<label>Were any evidences collected?</label><br>
-<select id="hasEvidence">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
+<label>
+  <input type="checkbox" id="hasEvidence">
+  Evidence collected
+</label>
 
-<div id="evidenceField" style="display:none; margin-left:20px;">
-  <textarea id="evidenceText" placeholder="Weapons, drugs, other..." rows="4" style="width:100%;"></textarea>
+<div id="evidenceField" class="hidden">
+  <textarea id="evidenceText" rows="4" placeholder="Weapons, drugs, other..."></textarea>
 </div>
 
 <!-- ================= WITNESSES ================= -->
 <h3>Witnesses</h3>
 
-<label>Were there any witnesses?</label><br>
-<select id="hasWitnesses">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
+<label>
+  <input type="checkbox" id="hasWitnesses">
+  Witnesses present
+</label>
 
-<div id="witnessFields" style="display:none; margin-left:20px;">
-  <button type="button" onclick="addWitness()">+ Add Witness</button>
+<div id="witnessFields" class="hidden">
+  <button onclick="addWitness()">+ Add Witness</button>
   <div id="witnessList"></div>
 </div>
 
 <!-- ================= LEGAL ================= -->
 <h3>Legal</h3>
 
-<label>Was the suspect mirandized?</label><br>
-<select id="miranda">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
-
-<label>Was medical attention provided?</label><br>
-<select id="medical">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
+<label><input type="checkbox" id="miranda"> Suspect was mirandized</label><br>
+<label><input type="checkbox" id="medical"> Medical attention provided</label>
 
 <!-- ================= PROCESSING ================= -->
 <h3>Processing</h3>
 
-<label>Processing Location:</label><br>
-<input id="processingLocation"><br><br>
+<div class="grid">
+  <div class="box full">
+    <label>Processing Location</label>
+    <input id="processingLocation">
+  </div>
+</div>
 
-<label>Mugshot taken?</label><br>
-<select id="mugshot">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
-
-<label>Fingerprints collected?</label><br>
-<select id="fingerprints">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
-
-<label>DNA collected?</label><br>
-<select id="dna">
-  <option value="no">No</option>
-  <option value="yes">Yes</option>
-</select><br><br>
-
-<!-- ================= NARRATIVE ================= -->
-<h3>Narratives</h3>
-
-<label>Pre-Arrest Narrative:</label><br>
-<textarea id="preNarrative" rows="4" style="width:100%;"></textarea><br><br>
-
-<label>Post-Arrest Narrative:</label><br>
-<textarea id="postNarrative" rows="4" style="width:100%;"></textarea><br><br>
+<label><input type="checkbox" id="mugshot"> Mugshot taken</label><br>
+<label><input type="checkbox" id="fingerprints"> Fingerprints collected</label><br>
+<label><input type="checkbox" id="dna"> DNA collected</label>
 
 <!-- ================= OUTPUT ================= -->
+<br><br>
 <button onclick="generate()">Generate Report</button>
 
 <h3>Output</h3>
-<textarea id="output" rows="15" style="width:100%;"></textarea>
+<textarea id="output" rows="15"></textarea>
 
-<!-- ================= BASIC SCRIPT (UI ONLY) ================= -->
+<!-- ================= SCRIPT ================= -->
 <script>
+
+// TOGGLES
 document.getElementById("hasVehicle").onchange = function() {
-  document.getElementById("vehicleFields").style.display =
-    this.value === "yes" ? "block" : "none";
+  document.getElementById("vehicleFields").classList.toggle("hidden", !this.checked);
 };
 
 document.getElementById("hasOfficers").onchange = function() {
-  document.getElementById("additionalOfficers").style.display =
-    this.value === "yes" ? "block" : "none";
+  document.getElementById("additionalOfficers").classList.toggle("hidden", !this.checked);
 };
 
 document.getElementById("hasEvidence").onchange = function() {
-  document.getElementById("evidenceField").style.display =
-    this.value === "yes" ? "block" : "none";
+  document.getElementById("evidenceField").classList.toggle("hidden", !this.checked);
 };
 
 document.getElementById("hasWitnesses").onchange = function() {
-  document.getElementById("witnessFields").style.display =
-    this.value === "yes" ? "block" : "none";
+  document.getElementById("witnessFields").classList.toggle("hidden", !this.checked);
 };
 
-// placeholders for dynamic features
+// PLACEHOLDERS (próximo passo)
 function addOfficer() {}
 function addWitness() {}
 function generate() {}
+
 </script>
 
 </body>
