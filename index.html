@@ -201,7 +201,7 @@
   <div class="card">
     <h4>Processing</h4>
 
-    <input id="processingLocation" placeholder="X/Y/Z Sheriff's Station etc."><br><br>
+    <input id="processingLocation" placeholder="Ganton Sheriff's Station etc."><br><br>
 
     <label><input type="checkbox" id="mugshot"> Mugshot taken?</label><br>
     <label><input type="checkbox" id="fingerprints"> Fingerprints collected?</label><br>
@@ -479,8 +479,8 @@ window.generate = function () {
   let processing = `Suspect was processed at ${processingLocation}.`;
 
   if (document.getElementById("mugshot")?.checked) processing += " Mugshot taken.";
-  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected?";
-  if (document.getElementById("dna")?.checked) processing += " DNA collected?";
+  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected";
+  if (document.getElementById("dna")?.checked) processing += " DNA collected";
 
   // ================= NARRATIVE =================
   const narrative = `
@@ -492,50 +492,36 @@ The suspect was detained and processed according to standard LSSD procedures.${l
   `.trim();
 
   // ================= OUTPUT =================
-  const output = `
+const output = `
 [departmentmanual]
 [/departmentmanual]
-[divbox=white]
-[table]
-[tr]
-[td valign=top width=70%]
 
-[b]LSSD ARREST REPORT[/b]
+[sectionheader][b][size=200][center]ARREST REPORT[/center][/size][/b][/sectionheader]
 
-[b]SUSPECT INFORMATION[/b]
-[b]Name:[/b] ${name}
+[sectionheader][b]SUSPECT INFORMATION[/b][/sectionheader]
+[sectionbody][b]Name:[/b] ${name}
 [b]Vehicle:[/b] ${vehicle}
+${mugshotBlock}[/sectionbody]
 
-[b]INCIDENT INFORMATION[/b]
-[b]Date:[/b] ${date}
+[sectionheader][b]INCIDENT INFORMATION[/b][/sectionheader]
+[sectionbody][b]Date:[/b] ${date}
 [b]Time:[/b] ${time}
-[b]Location:[/b] ${address}
+[b]Location:[/b] ${address}[/sectionbody]
 
-[b]CHARGES[/b]
-${charges}
+[sectionheader][b]CHARGES[/b][/sectionheader]
+[sectionbody]${charges}[/sectionbody]
 
-[/td]
+[sectionheader][b]NARRATIVE[/b][/sectionheader]
+[sectionbody]${narrative}[/sectionbody]
 
-[td valign=top width=30%]
-${mugshotBlock}
-[/td]
-[/tr]
-[/table]
+[sectionheader][b]OFFICERS[/b][/sectionheader]
+[sectionbody]${officers}[/sectionbody]
 
+[sectionheader][b]WITNESSES[/b][/sectionheader]
+[sectionbody]${witnesses}[/sectionbody]
 
-[b]NARRATIVE[/b]
-${narrative}
-
-[b]OFFICERS[/b]
-${officers}
-
-[b]WITNESSES[/b]
-${witnesses}
-
-[b]PROCESSING[/b]
-${processing}
-
-[/divbox]
+[sectionheader][b]PROCESSING[/b][/sectionheader]
+[sectionbody]${processing}[/sectionbody]
 `.trim();
 
   document.getElementById("output").value = output;
