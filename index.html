@@ -169,7 +169,7 @@
   <div class="card">
     <h4>Evidence</h4>
     <label>
-      <input type="checkbox" id="hasEvidence"> Evidence collected
+      <input type="checkbox" id="hasEvidence"> Evidence collected?
     </label>
 
     <div id="evidenceField" class="hidden">
@@ -193,19 +193,19 @@
   <!-- LEGAL -->
   <div class="card">
     <h4>Legal</h4>
-    <label><input type="checkbox" id="miranda"> Mirandized</label><br>
-    <label><input type="checkbox" id="medical"> Medical</label>
+    <label><input type="checkbox" id="miranda"> Suspect was Mirandized?</label><br>
+    <label><input type="checkbox" id="medical"> Suspect received medical attention?</label>
   </div>
 
   <!-- PROCESSING -->
   <div class="card">
     <h4>Processing</h4>
 
-    <input id="processingLocation" placeholder="Location"><br><br>
+    <input id="processingLocation" placeholder="Ganton Station, Vinewood Station etc."><br><br>
 
-    <label><input type="checkbox" id="mugshot"> Mugshot</label><br>
-    <label><input type="checkbox" id="fingerprints"> Fingerprints</label><br>
-    <label><input type="checkbox" id="dna"> DNA</label>
+    <label><input type="checkbox" id="mugshot"> Mugshot taken?</label><br>
+    <label><input type="checkbox" id="fingerprints"> Fingerprints collected?</label><br>
+    <label><input type="checkbox" id="dna"> DNA collected?</label>
   </div>
 
 </div>
@@ -404,7 +404,7 @@ window.generate = function () {
   // ================= MUGSHOT =================
   const mugshot = document.getElementById("mugshotUrl")?.value || "";
   const mugshotBlock = mugshot
-    ? `[img width=150 height=200]${mugshot}[/img]\n`
+    ? `[img]${mugshot}[/img]\n`
     : "";
 
   // ================= VEHICLE =================
@@ -479,39 +479,52 @@ window.generate = function () {
   let processing = `Suspect was processed at ${processingLocation}.`;
 
   if (document.getElementById("mugshot")?.checked) processing += " Mugshot taken.";
-  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected.";
-  if (document.getElementById("dna")?.checked) processing += " DNA collected.";
+  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected?";
+  if (document.getElementById("dna")?.checked) processing += " DNA collected?";
 
   // ================= NARRATIVE =================
   const narrative = `
 I was involved in an incident at ${address} on ${date} at approximately ${time} hours. 
-Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect. 
+
+Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
+
 The suspect was detained and processed according to standard LSSD procedures.${legalNarrative}
   `.trim();
 
   // ================= OUTPUT =================
   const output = `
 [departmentmanual]
-
+[/departmentmanual]
 [divbox=white]
+[table]
+[tr]
+[td valign=top width=70%]
+
 [b]LSSD ARREST REPORT[/b]
 
 [b]SUSPECT INFORMATION[/b]
 [b]Name:[/b] ${name}
 [b]Vehicle:[/b] ${vehicle}
 
-${mugshotBlock}
-
 [b]INCIDENT INFORMATION[/b]
 [b]Date:[/b] ${date}
 [b]Time:[/b] ${time}
 [b]Location:[/b] ${address}
 
-[b]NARRATIVE[/b]
-${narrative}
-
 [b]CHARGES[/b]
 ${charges}
+
+[/td]
+
+[td valign=top width=30%]
+${mugshotBlock}
+[/td]
+[/tr]
+[/table]
+
+
+[b]NARRATIVE[/b]
+${narrative}
 
 [b]OFFICERS[/b]
 ${officers}
@@ -521,6 +534,7 @@ ${witnesses}
 
 [b]PROCESSING[/b]
 ${processing}
+
 [/divbox]
 `.trim();
 
