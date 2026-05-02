@@ -67,11 +67,6 @@
     <input id="suspectName">
   </div>
 
-  <div class="box full">
-  <label>Mugshot URL</label>
-  <input id="mugshotUrl">
-</div>
-
   <div class="box">
     <label>
       <input type="checkbox" id="hasVehicle">
@@ -181,7 +176,7 @@
   <div class="card">
     <h4>Witnesses</h4>
     <label>
-      <input type="checkbox" id="hasWitnesses"> Witnesses present
+      <input type="checkbox" id="hasWitnesses"> Witnesses present?
     </label>
 
     <div id="witnessFields" class="hidden">
@@ -401,12 +396,6 @@ window.generate = function () {
   const time = document.getElementById("time")?.value || "N/A";
   const address = document.getElementById("address")?.value || "N/A";
 
-  // ================= MUGSHOT =================
-  const mugshot = document.getElementById("mugshotUrl")?.value || "";
-  const mugshotBlock = mugshot
-    ? `[img]${mugshot}[/img]\n`
-    : "";
-
   // ================= VEHICLE =================
   let vehicle = "N/A";
 
@@ -501,7 +490,7 @@ const output = `
 [sectionheader][b]SUSPECT INFORMATION[/b][/sectionheader]
 [sectionbody][b]Name:[/b] ${name}
 [b]Vehicle:[/b] ${vehicle}
-${mugshotBlock}[/sectionbody]
+[/sectionbody]
 
 [sectionheader][b]INCIDENT INFORMATION[/b][/sectionheader]
 [sectionbody][b]Date:[/b] ${date}
