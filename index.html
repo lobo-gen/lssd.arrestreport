@@ -389,27 +389,39 @@ if (typeof crimesData === "undefined") {
 // ================= GENERATE =================
 window.generate = function () {
 
+  // ================= SUSPECT =================
   const name = document.getElementById("suspectName").value || "Unknown";
+
   const date = document.getElementById("date").value || "N/A";
   const time = document.getElementById("time").value || "N/A";
   const address = document.getElementById("address").value || "N/A";
 
+  // ================= MUGSHOT =================
+  const mugshot = document.getElementById("mugshotUrl").value;
+  let mugshotBlock = "";
+
+  if (mugshot) {
+    mugshotBlock = `[img]${mugshot}[/img]\n`;
+  }
+
   // ================= VEHICLE =================
   let vehicle = "N/A";
+
   if (document.getElementById("hasVehicle").checked) {
-    const model = document.getElementById("vehicleModel").value;
-    const color = document.getElementById("vehicleColor").value;
-    const plate = document.getElementById("vehiclePlate").value;
+    const model = document.getElementById("vehicleModel").value || "";
+    const color = document.getElementById("vehicleColor").value || "";
+    const plate = document.getElementById("vehiclePlate").value || "";
+
     vehicle = `${model} | ${color} | Plate ${plate}`;
   }
 
   // ================= CHARGES =================
-  const charges = selectedCharges
-    .map(c => `- ${c.crime} (${c.code})`)
-    .join("\n");
+  const charges = selectedCharges.length
+    ? selectedCharges.map(c => `- ${c.crime} (${c.code})`).join("\n")
+    : "- None";
 
   // ================= OFFICERS =================
-  let officerText = "";
+  let officers = "";
 
   const mainOfficer =
     document.getElementById("officerName").value + " | " +
@@ -417,7 +429,7 @@ window.generate = function () {
     "Badge #" + document.getElementById("officerBadge").value + " | " +
     document.getElementById("officerDivision").value;
 
-  officerText += "- " + mainOfficer + "\n";
+  officers += `- ${mainOfficer}\n`;
 
   document.querySelectorAll("#officerList .grid").forEach(el => {
     const name = el.querySelector(".officerName")?.value || "";
@@ -425,49 +437,61 @@ window.generate = function () {
     const badge = el.querySelector(".officerBadge")?.value || "";
     const div = el.querySelector(".officerDivision")?.value || "";
 
-    officerText += `- ${name} | ${rank} | Badge #${badge} | ${div}\n`;
+    officers += `- ${name} | ${rank} | Badge #${badge} | ${div}\n`;
   });
 
   // ================= WITNESSES =================
-  let witnessText = "";
+  let witnesses = "";
 
   document.querySelectorAll("#witnessList > div").forEach(el => {
     const name = el.querySelector(".witnessName")?.value || "";
     const phone = el.querySelector(".witnessPhone")?.value || "";
     const id = el.querySelector(".witnessId")?.value || "";
 
-    witnessText += `- ${name} | Phone Number ${phone} | ID/License N° ${id}\n`;
+    witnesses += `- ${name} | Phone Number ${phone} | ID/License N° ${id}\n`;
   });
+
+  if (!witnesses) witnesses = "- None";
 
   // ================= LEGAL =================
   const miranda = document.getElementById("miranda").checked;
   const medical = document.getElementById("medical").checked;
 
-  let legalText = "";
-  if (miranda) legalText += "[b]Suspect was Mirandized prior to arrest.[/b]\n";
-  if (medical) legalText += "[b]Medical assistance was administered prior to transport.[/b]\n";
+  let legal = "";
+
+  if (miranda) legal += "[b]Suspect was Mirandized prior to arrest.[/b]\n";
+  if (medical) legal += "[b]Medical assistance was administered prior to transport.[/b]\n";
+
+  if (!legal) legal = "None";
 
   // ================= PROCESSING =================
-  const processing = document.getElementById("processingLocation").value || "Unknown Station";
+  const processingLocation =
+    document.getElementById("processingLocation").value || "Unknown Station";
 
-  let processingText = `Suspect was processed at ${processing}.`;
+  let processing = `Suspect was processed at ${processingLocation}.`;
 
-  if (document.getElementById("mugshot").checked) processingText += " Mugshot taken.";
-  if (document.getElementById("fingerprints").checked) processingText += " Fingerprints collected.";
-  if (document.getElementById("dna").checked) processingText += " DNA collected.";
+  if (document.getElementById("mugshot").checked) processing += " Mugshot taken.";
+  if (document.getElementById("fingerprints").checked) processing += " Fingerprints collected.";
+  if (document.getElementById("dna").checked) processing += " DNA collected.";
 
   // ================= NARRATIVE =================
-  let narrative = `
+  const narrative = `
 I was involved in an incident at ${address} on ${date} at approximately ${time} hours. 
 Upon arrival, I observed a situation requiring law enforcement intervention. 
 The suspect was detained and processed according to standard LSSD procedures.
   `.trim();
 
-  // ================= BBCode OUTPUT =================
+  // ================= FINAL BBCode OUTPUT =================
   const output = `
+[b]========================================[/b]
+[b]LSSD ARREST REPORT[/b]
+[b]========================================[/b]
+
 [b]SUSPECT INFORMATION[/b]
 [b]Name:[/b] ${name}
 [b]Vehicle:[/b] ${vehicle}
+
+${mugshotBlock}
 
 [b]INCIDENT INFORMATION[/b]
 [b]Date:[/b] ${date}
@@ -478,22 +502,22 @@ The suspect was detained and processed according to standard LSSD procedures.
 ${narrative}
 
 [b]CHARGES[/b]
-${charges || "- None"}
+${charges}
 
 [b]OFFICERS[/b]
-${officerText || "- None"}
+${officers}
 
 [b]WITNESSES[/b]
-${witnessText || "- None"}
+${witnesses}
 
 [b]PROCESSING[/b]
-${processingText}
+${processing}
 
 [b]LEGAL[/b]
-${legalText || "None"}
+${legal}
 `.trim();
 
-  document.getElementById("output").value = output;
+  document.getElementById("outputText").innerText = output;
 };
 
 });
