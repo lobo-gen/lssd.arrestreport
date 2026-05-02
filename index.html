@@ -389,19 +389,18 @@ if (typeof crimesData === "undefined") {
 // ================= GENERATE =================
 window.generate = function () {
 
-  // ================= BASIC DATA =================
   const name = document.getElementById("suspectName").value || "Unknown";
   const date = document.getElementById("date").value || "N/A";
   const time = document.getElementById("time").value || "N/A";
   const address = document.getElementById("address").value || "N/A";
 
   // ================= VEHICLE =================
-  let vehicle = "";
+  let vehicle = "N/A";
   if (document.getElementById("hasVehicle").checked) {
     const model = document.getElementById("vehicleModel").value;
     const color = document.getElementById("vehicleColor").value;
     const plate = document.getElementById("vehiclePlate").value;
-    vehicle = `${model} | ${color} | ${plate}`;
+    vehicle = `${model} | ${color} | Plate ${plate}`;
   }
 
   // ================= CHARGES =================
@@ -409,13 +408,13 @@ window.generate = function () {
     .map(c => `- ${c.crime} (${c.code})`)
     .join("\n");
 
-  // ================= OFFICER =================
+  // ================= OFFICERS =================
   let officerText = "";
 
   const mainOfficer =
     document.getElementById("officerName").value + " | " +
     document.getElementById("officerRank").value + " | " +
-    document.getElementById("officerBadge").value + " | " +
+    "Badge #" + document.getElementById("officerBadge").value + " | " +
     document.getElementById("officerDivision").value;
 
   officerText += "- " + mainOfficer + "\n";
@@ -426,17 +425,18 @@ window.generate = function () {
     const badge = el.querySelector(".officerBadge")?.value || "";
     const div = el.querySelector(".officerDivision")?.value || "";
 
-    officerText += `- ${name} | ${rank} | ${badge} | ${div}\n`;
+    officerText += `- ${name} | ${rank} | Badge #${badge} | ${div}\n`;
   });
 
   // ================= WITNESSES =================
   let witnessText = "";
+
   document.querySelectorAll("#witnessList > div").forEach(el => {
     const name = el.querySelector(".witnessName")?.value || "";
     const phone = el.querySelector(".witnessPhone")?.value || "";
     const id = el.querySelector(".witnessId")?.value || "";
 
-    witnessText += `- ${name} | ${phone} | ${id}\n`;
+    witnessText += `- ${name} | Phone Number ${phone} | ID/License N° ${id}\n`;
   });
 
   // ================= LEGAL =================
@@ -444,8 +444,8 @@ window.generate = function () {
   const medical = document.getElementById("medical").checked;
 
   let legalText = "";
-  if (miranda) legalText += "Suspect was mirandized prior to arrest.\n";
-  if (medical) legalText += "Medical assistance was administered prior to transport.\n";
+  if (miranda) legalText += "[b]Suspect was Mirandized prior to arrest.[/b]\n";
+  if (medical) legalText += "[b]Medical assistance was administered prior to transport.[/b]\n";
 
   // ================= PROCESSING =================
   const processing = document.getElementById("processingLocation").value || "Unknown Station";
@@ -463,35 +463,34 @@ Upon arrival, I observed a situation requiring law enforcement intervention.
 The suspect was detained and processed according to standard LSSD procedures.
   `.trim();
 
-  // ================= FINAL OUTPUT =================
-  const output =
-`
-SUSPECT INFORMATION
-Name: ${name}
-Vehicle: ${vehicle || "N/A"}
+  // ================= BBCode OUTPUT =================
+  const output = `
+[b]SUSPECT INFORMATION[/b]
+[b]Name:[/b] ${name}
+[b]Vehicle:[/b] ${vehicle}
 
-INCIDENT INFORMATION
-Date: ${date}
-Time: ${time}
-Location: ${address}
+[b]INCIDENT INFORMATION[/b]
+[b]Date:[/b] ${date}
+[b]Time:[/b] ${time}
+[b]Location:[/b] ${address}
 
-NARRATIVE
+[b]NARRATIVE[/b]
 ${narrative}
 
-CHARGES
-${charges || "No charges selected"}
+[b]CHARGES[/b]
+${charges || "- None"}
 
-OFFICERS
-${officerText}
+[b]OFFICERS[/b]
+${officerText || "- None"}
 
-WITNESSES
-${witnessText || "None"}
+[b]WITNESSES[/b]
+${witnessText || "- None"}
 
-PROCESSING
+[b]PROCESSING[/b]
 ${processingText}
 
-LEGAL
-${legalText || "No legal flags"}
+[b]LEGAL[/b]
+${legalText || "None"}
 `.trim();
 
   document.getElementById("output").value = output;
