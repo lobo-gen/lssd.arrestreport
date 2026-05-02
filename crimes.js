@@ -1,4 +1,4 @@
-const crimesData = {{
+const crimesData = {
   "Crimes against the Person": [
     {"title":"(1) 01","crime":"Intimidation","classification":"Misdemeanor","code":"422 PC"},
     {"title":"(1) 02","crime":"Assault","classification":"Misdemeanor","code":"240 PC"},
@@ -80,4 +80,4 @@ const crimesData = {{
     {"title":"(8) 10","crime":"Unlawful Discharge of a Firearm","classification":"Felony","code":"246 PC"},
     {"title":"(8) 11","crime":"Discharging a Firearm from a Vehicle","classification":"Felony","code":"26100 PC"}
   ]
-}};
+};
