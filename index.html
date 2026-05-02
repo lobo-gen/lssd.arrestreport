@@ -408,9 +408,12 @@ window.generate = function () {
   }
 
   // ================= CHARGES =================
-  const charges = selectedCharges.length
-    ? selectedCharges.map(c => `- ${c.crime} (${c.code})`).join("\n")
-    : "- None";
+const charges = selectedCharges.length
+  ? selectedCharges.map(c => {
+      const color = c.classification === "Felony" ? "red" : "orange";
+      return `[color=${color}]- ${c.crime} (${c.code})[/color]`;
+    }).join("\n")
+  : "- None";
 
   // ================= OFFICERS =================
   let officers = "";
@@ -468,8 +471,8 @@ window.generate = function () {
   let processing = `Suspect was processed at ${processingLocation}.`;
 
   if (document.getElementById("mugshot")?.checked) processing += " Mugshot taken.";
-  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected";
-  if (document.getElementById("dna")?.checked) processing += " DNA collected";
+  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected.";
+  if (document.getElementById("dna")?.checked) processing += " DNA collected.";
 
   // ================= NARRATIVE =================
   const narrative = `
