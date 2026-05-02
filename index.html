@@ -67,6 +67,11 @@
     <input id="suspectName">
   </div>
 
+  <div class="box full">
+  <label>Mugshot URL</label>
+  <input id="mugshotUrl">
+</div>
+
   <div class="box">
     <label>
       <input type="checkbox" id="hasVehicle">
@@ -397,7 +402,8 @@ window.generate = function () {
   const address = document.getElementById("address").value || "N/A";
 
   // ================= MUGSHOT =================
-  const mugshot = document.getElementById("mugshotUrl").value;
+  const mugshotEl = document.getElementById("mugshotUrl");
+const mugshot = mugshotEl ? mugshotEl.value : "";
   let mugshotBlock = "";
 
   if (mugshot) {
