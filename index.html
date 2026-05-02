@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>LSPD Arrest Report Generator</title>
+</head>
+<body style="font-family: Arial; max-width: 600px; margin: auto;">
+
+  <h2>LSPD Arrest Report</h2>
+
+  <label>Suspect Name:</label><br>
+  <input id="name"><br><br>
+
+  <label>Charges:</label><br>
+  <input id="charges"><br><br>
+
+  <label>Officer:</label><br>
+  <input id="officer"><br><br>
+
+  <button onclick="gerar()">Gerar BBCode</button>
+
+  <h3>Output:</h3>
+  <textarea id="output" rows="10" style="width:100%;"></textarea>
+
+  <script>
+    function gerar() {
+      let name = document.getElementById("name").value;
+      let charges = document.getElementById("charges").value;
+      let officer = document.getElementById("officer").value;
+
+      let bbcode = `[b]Suspect:[/b] ${name}\n` +
+                   `[b]Charges:[/b] ${charges}\n` +
+                   `[b]Arresting Officer:[/b] ${officer}`;
+
+      document.getElementById("output").value = bbcode;
+    }
+  </script>
+
+</body>
+</html>
