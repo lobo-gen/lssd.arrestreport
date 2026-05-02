@@ -215,6 +215,7 @@
 <!-- ================= SCRIPT ================= -->
 <script>
 
+// ================= TOGGLES =================
 document.getElementById("hasVehicle").onchange = function() {
   document.getElementById("vehicleFields").classList.toggle("hidden", !this.checked);
 };
@@ -231,9 +232,88 @@ document.getElementById("hasWitnesses").onchange = function() {
   document.getElementById("witnessFields").classList.toggle("hidden", !this.checked);
 };
 
-function addOfficer() {}
-function addWitness() {}
-function generate() {}
+// ================= ADD OFFICER =================
+let officerCount = 0;
+
+function addOfficer() {
+  officerCount++;
+
+  const container = document.getElementById("officerList");
+
+  const div = document.createElement("div");
+  div.className = "grid";
+  div.style.border = "1px solid #ccc";
+  div.style.padding = "10px";
+  div.style.marginTop = "10px";
+
+  div.innerHTML = `
+    <div class="box">
+      <label>Name</label>
+      <input class="officerName">
+    </div>
+
+    <div class="box">
+      <label>Rank</label>
+      <input class="officerRank">
+    </div>
+
+    <div class="box">
+      <label>Badge</label>
+      <input class="officerBadge">
+    </div>
+
+    <div class="box">
+      <label>Division</label>
+      <input class="officerDivision">
+    </div>
+
+    <div class="box full">
+      <button type="button" onclick="this.parentElement.parentElement.remove()">
+        Remove Officer
+      </button>
+    </div>
+  `;
+
+  container.appendChild(div);
+}
+
+// ================= ADD WITNESS =================
+let witnessCount = 0;
+
+function addWitness() {
+  witnessCount++;
+
+  const container = document.getElementById("witnessList");
+
+  const div = document.createElement("div");
+  div.style.border = "1px solid #ccc";
+  div.style.padding = "10px";
+  div.style.marginTop = "10px";
+
+  div.innerHTML = `
+    <div>
+      <label>Full Name</label><br>
+      <input class="witnessName"><br><br>
+
+      <label>Phone Number</label><br>
+      <input class="witnessPhone"><br><br>
+
+      <label>ID / License Number</label><br>
+      <input class="witnessId"><br><br>
+
+      <button type="button" onclick="this.parentElement.parentElement.remove()">
+        Remove Witness
+      </button>
+    </div>
+  `;
+
+  container.appendChild(div);
+}
+
+// ================= GENERATE (placeholder ainda) =================
+function generate() {
+  alert("Generate function coming next step");
+}
 
 </script>
 
