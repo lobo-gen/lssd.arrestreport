@@ -4,114 +4,108 @@
   <meta charset="UTF-8">
   <title>LSPD Arrest Report Generator</title>
 </head>
-<body style="font-family: Arial; max-width: 600px; margin: auto;">
+<body style="font-family: Arial; max-width: 700px; margin: auto;">
 
   <h2>LSPD Arrest Report</h2>
 
   <label>Suspect Name:</label><br>
   <input id="name"><br><br>
 
- <h3>Charges</h3>
+  <h3>Charges</h3>
 
-<input type="text" id="search" placeholder="Digite para buscar crime..." onkeyup="filtrar()">
+  <input type="text" id="search" placeholder="Type to search crimes..." onkeyup="filterCrimes()">
 
-<div id="lista"></div>
+  <div id="list"></div>
 
-<h4>Selecionados:</h4>
-<ul id="selecionados"></ul>
+  <h4>Selected Charges:</h4>
+  <ul id="selected"></ul>
 
   <label>Officer:</label><br>
   <input id="officer"><br><br>
 
-  <button onclick="gerar()">Gerar BBCode</button>
+  <button onclick="generate()">Generate BBCode</button>
 
   <h3>Output:</h3>
   <textarea id="output" rows="10" style="width:100%;"></textarea>
 
+  <script src="crimes.js"></script>
+
   <script>
-    function gerar() {
-      let name = document.getElementById("name").value;
-      let charges = document.getElementById("charges").value;
-      let officer = document.getElementById("officer").value;
+let selectedCrimes = [];
 
-      let bbcode = `[b]Suspect:[/b] ${name}\n` +
-                   `[b]Charges:[/b] ${charges}\n` +
-                   `[b]Arresting Officer:[/b] ${officer}`;
+function renderList(filter = "") {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
 
-      document.getElementById("output").value = bbcode;
-    }
-  </script>
-<script src="crimes.js"></script>
-
-<script>
-let selecionados = [];
-
-function renderLista(filtro = "") {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
-
-  Object.keys(crimesData).forEach(categoria => {
+  Object.keys(crimesData).forEach(category => {
     const section = document.createElement("div");
 
     const title = document.createElement("h4");
-    title.innerText = categoria;
+    title.innerText = category;
     section.appendChild(title);
 
-    crimesData[categoria].forEach(crime => {
-      if (!crime.crime.toLowerCase().includes(filtro.toLowerCase())) return;
+    crimesData[category].forEach(crime => {
+      if (!crime.crime.toLowerCase().includes(filter.toLowerCase())) return;
 
       const item = document.createElement("div");
 
-      let cor = crime.classification === "Felony" ? "red" : "orange";
+      let color = crime.classification === "Felony" ? "red" : "orange";
 
-      item.innerHTML = `
-        <label style="color:${cor}; cursor:pointer;">
-          <input type="checkbox" onchange='toggleCrime(${JSON.stringify(crime)})'>
-          ${crime.title} - ${crime.crime} (${crime.code})
-        </label>
-      `;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
 
+      checkbox.onchange = () => toggleCrime(crime);
+
+      const label = document.createElement("label");
+      label.style.color = color;
+      label.style.cursor = "pointer";
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(
+        ` ${crime.title} - ${crime.crime} (${crime.code})`
+      ));
+
+      item.appendChild(label);
       section.appendChild(item);
     });
 
-    lista.appendChild(section);
+    list.appendChild(section);
   });
 }
 
-function filtrar() {
-  const valor = document.getElementById("search").value;
-  renderLista(valor);
+function filterCrimes() {
+  const value = document.getElementById("search").value;
+  renderList(value);
 }
 
 function toggleCrime(crime) {
-  const index = selecionados.findIndex(c => c.title === crime.title);
+  const index = selectedCrimes.findIndex(c => c.title === crime.title);
 
   if (index > -1) {
-    selecionados.splice(index, 1);
+    selectedCrimes.splice(index, 1);
   } else {
-    selecionados.push(crime);
+    selectedCrimes.push(crime);
   }
 
-  atualizarSelecionados();
+  updateSelected();
 }
 
-function atualizarSelecionados() {
-  const ul = document.getElementById("selecionados");
+function updateSelected() {
+  const ul = document.getElementById("selected");
   ul.innerHTML = "";
 
-  selecionados.forEach(c => {
+  selectedCrimes.forEach(c => {
     const li = document.createElement("li");
     li.innerText = `${c.crime} (${c.code})`;
     ul.appendChild(li);
   });
 }
 
-// integrar com seu gerar BBCode
-function gerar() {
+function generate() {
   let name = document.getElementById("name").value;
   let officer = document.getElementById("officer").value;
 
-  let charges = selecionados.map(c => `${c.crime} (${c.code})`).join(", ");
+  let charges = selectedCrimes.map(c => `${c.crime} (${c.code})`).join(", ");
 
   let bbcode = `[b]Suspect:[/b] ${name}\n` +
                `[b]Charges:[/b] ${charges}\n` +
@@ -120,8 +114,9 @@ function gerar() {
   document.getElementById("output").value = bbcode;
 }
 
-// inicializa
-renderLista();
-</script>
+// init
+renderList();
+  </script>
+
 </body>
 </html>
