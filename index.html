@@ -388,7 +388,113 @@ if (typeof crimesData === "undefined") {
 
 // ================= GENERATE =================
 window.generate = function () {
-  alert("Generate ready for next step");
+
+  // ================= BASIC DATA =================
+  const name = document.getElementById("suspectName").value || "Unknown";
+  const date = document.getElementById("date").value || "N/A";
+  const time = document.getElementById("time").value || "N/A";
+  const address = document.getElementById("address").value || "N/A";
+
+  // ================= VEHICLE =================
+  let vehicle = "";
+  if (document.getElementById("hasVehicle").checked) {
+    const model = document.getElementById("vehicleModel").value;
+    const color = document.getElementById("vehicleColor").value;
+    const plate = document.getElementById("vehiclePlate").value;
+    vehicle = `${model} | ${color} | ${plate}`;
+  }
+
+  // ================= CHARGES =================
+  const charges = selectedCharges
+    .map(c => `- ${c.crime} (${c.code})`)
+    .join("\n");
+
+  // ================= OFFICER =================
+  let officerText = "";
+
+  const mainOfficer =
+    document.getElementById("officerName").value + " | " +
+    document.getElementById("officerRank").value + " | " +
+    document.getElementById("officerBadge").value + " | " +
+    document.getElementById("officerDivision").value;
+
+  officerText += "- " + mainOfficer + "\n";
+
+  document.querySelectorAll("#officerList .grid").forEach(el => {
+    const name = el.querySelector(".officerName")?.value || "";
+    const rank = el.querySelector(".officerRank")?.value || "";
+    const badge = el.querySelector(".officerBadge")?.value || "";
+    const div = el.querySelector(".officerDivision")?.value || "";
+
+    officerText += `- ${name} | ${rank} | ${badge} | ${div}\n`;
+  });
+
+  // ================= WITNESSES =================
+  let witnessText = "";
+  document.querySelectorAll("#witnessList > div").forEach(el => {
+    const name = el.querySelector(".witnessName")?.value || "";
+    const phone = el.querySelector(".witnessPhone")?.value || "";
+    const id = el.querySelector(".witnessId")?.value || "";
+
+    witnessText += `- ${name} | ${phone} | ${id}\n`;
+  });
+
+  // ================= LEGAL =================
+  const miranda = document.getElementById("miranda").checked;
+  const medical = document.getElementById("medical").checked;
+
+  let legalText = "";
+  if (miranda) legalText += "Suspect was mirandized prior to arrest.\n";
+  if (medical) legalText += "Medical assistance was administered prior to transport.\n";
+
+  // ================= PROCESSING =================
+  const processing = document.getElementById("processingLocation").value || "Unknown Station";
+
+  let processingText = `Suspect was processed at ${processing}.`;
+
+  if (document.getElementById("mugshot").checked) processingText += " Mugshot taken.";
+  if (document.getElementById("fingerprints").checked) processingText += " Fingerprints collected.";
+  if (document.getElementById("dna").checked) processingText += " DNA collected.";
+
+  // ================= NARRATIVE =================
+  let narrative = `
+I was involved in an incident at ${address} on ${date} at approximately ${time} hours. 
+Upon arrival, I observed a situation requiring law enforcement intervention. 
+The suspect was detained and processed according to standard LSSD procedures.
+  `.trim();
+
+  // ================= FINAL OUTPUT =================
+  const output =
+`
+SUSPECT INFORMATION
+Name: ${name}
+Vehicle: ${vehicle || "N/A"}
+
+INCIDENT INFORMATION
+Date: ${date}
+Time: ${time}
+Location: ${address}
+
+NARRATIVE
+${narrative}
+
+CHARGES
+${charges || "No charges selected"}
+
+OFFICERS
+${officerText}
+
+WITNESSES
+${witnessText || "None"}
+
+PROCESSING
+${processingText}
+
+LEGAL
+${legalText || "No legal flags"}
+`.trim();
+
+  document.getElementById("output").value = output;
 };
 
 });
