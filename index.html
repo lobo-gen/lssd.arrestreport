@@ -4,119 +4,187 @@
   <meta charset="UTF-8">
   <title>LSSD Arrest Report Generator</title>
 </head>
-<body style="font-family: Arial; max-width: 700px; margin: auto;">
 
-  <h2>LSSD Arrest Report</h2>
+<body style="font-family: Arial; max-width: 900px; margin: auto;">
 
-  <label>Suspect Name:</label><br>
-  <input id="name"><br><br>
+<h2>LSSD Arrest Report Generator</h2>
 
-  <h3>Charges</h3>
+<!-- ================= SUSPECT ================= -->
+<h3>Suspect Information</h3>
 
-  <input type="text" id="search" placeholder="Type to search crimes..." onkeyup="filterCrimes()">
+<label>Full Name:</label><br>
+<input id="suspectName"><br><br>
 
-  <div id="list"></div>
+<label>Was the suspect in a vehicle?</label><br>
+<select id="hasVehicle">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-  <h4>Selected Charges:</h4>
-  <ul id="selected"></ul>
+<div id="vehicleFields" style="display:none; margin-left:20px;">
+  <label>Vehicle Model:</label><br>
+  <input id="vehicleModel"><br>
 
-  <label>Officer:</label><br>
-  <input id="officer"><br><br>
+  <label>Vehicle Color:</label><br>
+  <input id="vehicleColor"><br>
 
-  <button onclick="generate()">Generate BBCode</button>
+  <label>License Plate:</label><br>
+  <input id="vehiclePlate"><br><br>
+</div>
 
-  <h3>Output:</h3>
-  <textarea id="output" rows="10" style="width:100%;"></textarea>
+<!-- ================= INCIDENT ================= -->
+<h3>Incident Information</h3>
 
-  <script src="crimes.js"></script>
+<label>Date:</label><br>
+<input type="date" id="date"><br><br>
 
-  <script>
-let selectedCrimes = [];
+<label>Time:</label><br>
+<input type="time" id="time"><br><br>
 
-function renderList(filter = "") {
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+<label>Address:</label><br>
+<input id="address"><br><br>
 
-  Object.keys(crimesData).forEach(category => {
-    const section = document.createElement("div");
+<!-- ================= OFFICER ================= -->
+<h3>Officer Information</h3>
 
-    const title = document.createElement("h4");
-    title.innerText = category;
-    section.appendChild(title);
+<label>Name:</label><br>
+<input id="officerName"><br>
 
-    crimesData[category].forEach(crime => {
-      if (!crime.crime.toLowerCase().includes(filter.toLowerCase())) return;
+<label>Rank:</label><br>
+<input id="officerRank"><br>
 
-      const item = document.createElement("div");
+<label>Badge Number:</label><br>
+<input id="officerBadge"><br>
 
-      let color = crime.classification === "Felony" ? "red" : "orange";
+<label>Division:</label><br>
+<input id="officerDivision"><br><br>
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
+<label>Were additional officers involved?</label><br>
+<select id="hasOfficers">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-      checkbox.onchange = () => toggleCrime(crime);
+<div id="additionalOfficers" style="display:none; margin-left:20px;">
+  <button type="button" onclick="addOfficer()">+ Add Additional Officer</button>
+  <div id="officerList"></div>
+</div>
 
-      const label = document.createElement("label");
-      label.style.color = color;
-      label.style.cursor = "pointer";
+<!-- ================= CHARGES ================= -->
+<h3>Charges</h3>
 
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(
-        ` ${crime.title} - ${crime.crime} (${crime.code})`
-      ));
+<input type="text" id="chargeSearch" placeholder="Search charges...">
+<div id="chargeDropdown"></div>
+<div id="selectedCharges"></div>
 
-      item.appendChild(label);
-      section.appendChild(item);
-    });
+<!-- ================= EVIDENCE ================= -->
+<h3>Evidence</h3>
 
-    list.appendChild(section);
-  });
-}
+<label>Were any evidences collected?</label><br>
+<select id="hasEvidence">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-function filterCrimes() {
-  const value = document.getElementById("search").value;
-  renderList(value);
-}
+<div id="evidenceField" style="display:none; margin-left:20px;">
+  <textarea id="evidenceText" placeholder="Weapons, drugs, other..." rows="4" style="width:100%;"></textarea>
+</div>
 
-function toggleCrime(crime) {
-  const index = selectedCrimes.findIndex(c => c.title === crime.title);
+<!-- ================= WITNESSES ================= -->
+<h3>Witnesses</h3>
 
-  if (index > -1) {
-    selectedCrimes.splice(index, 1);
-  } else {
-    selectedCrimes.push(crime);
-  }
+<label>Were there any witnesses?</label><br>
+<select id="hasWitnesses">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-  updateSelected();
-}
+<div id="witnessFields" style="display:none; margin-left:20px;">
+  <button type="button" onclick="addWitness()">+ Add Witness</button>
+  <div id="witnessList"></div>
+</div>
 
-function updateSelected() {
-  const ul = document.getElementById("selected");
-  ul.innerHTML = "";
+<!-- ================= LEGAL ================= -->
+<h3>Legal</h3>
 
-  selectedCrimes.forEach(c => {
-    const li = document.createElement("li");
-    li.innerText = `${c.crime} (${c.code})`;
-    ul.appendChild(li);
-  });
-}
+<label>Was the suspect mirandized?</label><br>
+<select id="miranda">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-function generate() {
-  let name = document.getElementById("name").value;
-  let officer = document.getElementById("officer").value;
+<label>Was medical attention provided?</label><br>
+<select id="medical">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-  let charges = selectedCrimes.map(c => `${c.crime} (${c.code})`).join(", ");
+<!-- ================= PROCESSING ================= -->
+<h3>Processing</h3>
 
-  let bbcode = `[b]Suspect:[/b] ${name}\n` +
-               `[b]Charges:[/b] ${charges}\n` +
-               `[b]Arresting Officer:[/b] ${officer}`;
+<label>Processing Location:</label><br>
+<input id="processingLocation"><br><br>
 
-  document.getElementById("output").value = bbcode;
-}
+<label>Mugshot taken?</label><br>
+<select id="mugshot">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
 
-// init
-renderList();
-  </script>
+<label>Fingerprints collected?</label><br>
+<select id="fingerprints">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
+
+<label>DNA collected?</label><br>
+<select id="dna">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select><br><br>
+
+<!-- ================= NARRATIVE ================= -->
+<h3>Narratives</h3>
+
+<label>Pre-Arrest Narrative:</label><br>
+<textarea id="preNarrative" rows="4" style="width:100%;"></textarea><br><br>
+
+<label>Post-Arrest Narrative:</label><br>
+<textarea id="postNarrative" rows="4" style="width:100%;"></textarea><br><br>
+
+<!-- ================= OUTPUT ================= -->
+<button onclick="generate()">Generate Report</button>
+
+<h3>Output</h3>
+<textarea id="output" rows="15" style="width:100%;"></textarea>
+
+<!-- ================= BASIC SCRIPT (UI ONLY) ================= -->
+<script>
+document.getElementById("hasVehicle").onchange = function() {
+  document.getElementById("vehicleFields").style.display =
+    this.value === "yes" ? "block" : "none";
+};
+
+document.getElementById("hasOfficers").onchange = function() {
+  document.getElementById("additionalOfficers").style.display =
+    this.value === "yes" ? "block" : "none";
+};
+
+document.getElementById("hasEvidence").onchange = function() {
+  document.getElementById("evidenceField").style.display =
+    this.value === "yes" ? "block" : "none";
+};
+
+document.getElementById("hasWitnesses").onchange = function() {
+  document.getElementById("witnessFields").style.display =
+    this.value === "yes" ? "block" : "none";
+};
+
+// placeholders for dynamic features
+function addOfficer() {}
+function addWitness() {}
+function generate() {}
+</script>
 
 </body>
 </html>
