@@ -24,13 +24,7 @@
       margin-bottom: 15px;
     }
 
-    .full {
-      grid-column: span 4;
-    }
-
-    .half {
-      grid-column: span 2;
-    }
+    .full { grid-column: span 4; }
 
     .box {
       display: flex;
@@ -45,8 +39,17 @@
       width: 100%;
     }
 
-    button {
-      margin-top: 10px;
+    /* NOVO: layout em colunas */
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 6px;
     }
   </style>
 </head>
@@ -144,57 +147,63 @@
   <div id="officerList"></div>
 </div>
 
-<!-- ================= CHARGES ================= -->
-<h3>Charges</h3>
+<!-- ================= CASE DETAILS (NOVO) ================= -->
+<h3>Case Details</h3>
 
-<input type="text" id="chargeSearch" placeholder="Search charges...">
-<div id="chargeDropdown"></div>
-<div id="selectedCharges"></div>
+<div class="section-grid">
 
-<!-- ================= EVIDENCE ================= -->
-<h3>Evidence</h3>
-
-<label>
-  <input type="checkbox" id="hasEvidence">
-  Evidence collected
-</label>
-
-<div id="evidenceField" class="hidden">
-  <textarea id="evidenceText" rows="4" placeholder="Weapons, drugs, other..."></textarea>
-</div>
-
-<!-- ================= WITNESSES ================= -->
-<h3>Witnesses</h3>
-
-<label>
-  <input type="checkbox" id="hasWitnesses">
-  Witnesses present
-</label>
-
-<div id="witnessFields" class="hidden">
-  <button onclick="addWitness()">+ Add Witness</button>
-  <div id="witnessList"></div>
-</div>
-
-<!-- ================= LEGAL ================= -->
-<h3>Legal</h3>
-
-<label><input type="checkbox" id="miranda"> Suspect was mirandized</label><br>
-<label><input type="checkbox" id="medical"> Medical attention provided</label>
-
-<!-- ================= PROCESSING ================= -->
-<h3>Processing</h3>
-
-<div class="grid">
-  <div class="box full">
-    <label>Processing Location</label>
-    <input id="processingLocation">
+  <!-- CHARGES -->
+  <div class="card">
+    <h4>Charges</h4>
+    <input type="text" id="chargeSearch" placeholder="Search charges...">
+    <div id="chargeDropdown"></div>
+    <div id="selectedCharges"></div>
   </div>
-</div>
 
-<label><input type="checkbox" id="mugshot"> Mugshot taken</label><br>
-<label><input type="checkbox" id="fingerprints"> Fingerprints collected</label><br>
-<label><input type="checkbox" id="dna"> DNA collected</label>
+  <!-- EVIDENCE -->
+  <div class="card">
+    <h4>Evidence</h4>
+    <label>
+      <input type="checkbox" id="hasEvidence"> Evidence collected
+    </label>
+
+    <div id="evidenceField" class="hidden">
+      <textarea id="evidenceText" rows="3" placeholder="Weapons, drugs, other..."></textarea>
+    </div>
+  </div>
+
+  <!-- WITNESSES -->
+  <div class="card">
+    <h4>Witnesses</h4>
+    <label>
+      <input type="checkbox" id="hasWitnesses"> Witnesses present
+    </label>
+
+    <div id="witnessFields" class="hidden">
+      <button onclick="addWitness()">+ Add</button>
+      <div id="witnessList"></div>
+    </div>
+  </div>
+
+  <!-- LEGAL -->
+  <div class="card">
+    <h4>Legal</h4>
+    <label><input type="checkbox" id="miranda"> Mirandized</label><br>
+    <label><input type="checkbox" id="medical"> Medical</label>
+  </div>
+
+  <!-- PROCESSING -->
+  <div class="card">
+    <h4>Processing</h4>
+
+    <input id="processingLocation" placeholder="Location"><br><br>
+
+    <label><input type="checkbox" id="mugshot"> Mugshot</label><br>
+    <label><input type="checkbox" id="fingerprints"> Fingerprints</label><br>
+    <label><input type="checkbox" id="dna"> DNA</label>
+  </div>
+
+</div>
 
 <!-- ================= OUTPUT ================= -->
 <br><br>
@@ -206,7 +215,6 @@
 <!-- ================= SCRIPT ================= -->
 <script>
 
-// TOGGLES
 document.getElementById("hasVehicle").onchange = function() {
   document.getElementById("vehicleFields").classList.toggle("hidden", !this.checked);
 };
@@ -223,7 +231,6 @@ document.getElementById("hasWitnesses").onchange = function() {
   document.getElementById("witnessFields").classList.toggle("hidden", !this.checked);
 };
 
-// PLACEHOLDERS (próximo passo)
 function addOfficer() {}
 function addWitness() {}
 function generate() {}
