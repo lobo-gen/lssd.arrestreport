@@ -5,6 +5,7 @@
   <title>LSSD Arrest Report Generator</title>
 
   <link rel="icon" type="image/png" href="favicon.png">
+
   <style>
     body {
       font-family: Arial;
@@ -13,16 +14,20 @@
     }
 
     h3 {
-      margin-top: 30px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+
+    .section {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin-bottom: 15px;
     }
 
     .full { grid-column: span 4; }
@@ -38,9 +43,9 @@
 
     textarea {
       width: 100%;
+      resize: none;
     }
 
-    /* NOVO: layout em colunas */
     .section-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -52,6 +57,20 @@
       padding: 10px;
       border-radius: 6px;
     }
+
+    button {
+      background: #2b2b2b;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background: #444;
+    }
   </style>
 </head>
 
@@ -59,13 +78,13 @@
 
 <h2>LSSD Arrest Report Generator</h2>
 
-<!-- ================= SUSPECT ================= -->
+<div class="section">
 <h3>Suspect</h3>
 
 <div class="grid">
   <div class="box">
     <label>Full Name</label>
-    <input id="suspectName">
+    <input id="suspectName" placeholder="John Doe">
   </div>
 
   <div class="box">
@@ -77,415 +96,222 @@
 </div>
 
 <div id="vehicleFields" class="grid hidden">
-  <div class="box">
-    <label>Model</label>
-    <input id="vehicleModel">
-  </div>
-
-  <div class="box">
-    <label>Color</label>
-    <input id="vehicleColor">
-  </div>
-
-  <div class="box">
-    <label>Plate</label>
-    <input id="vehiclePlate">
-  </div>
+  <input id="vehicleModel" placeholder="Model">
+  <input id="vehicleColor" placeholder="Color">
+  <input id="vehiclePlate" placeholder="Plate">
+</div>
 </div>
 
-<!-- ================= INCIDENT ================= -->
+<div class="section">
 <h3>Incident</h3>
 
 <div class="grid">
-  <div class="box">
-    <label>Date</label>
-    <input type="date" id="date">
-  </div>
-
-  <div class="box">
-    <label>Time</label>
-    <input type="time" id="time">
-  </div>
-
-  <div class="box full">
-    <label>Address</label>
-    <input id="address">
-  </div>
+  <input type="date" id="date">
+  <input type="time" id="time">
+  <input class="full" id="address" placeholder="Location / Address">
+</div>
 </div>
 
-<!-- ================= OFFICER ================= -->
+<div class="section">
 <h3>Officer</h3>
 
 <div class="grid">
-  <div class="box">
-    <label>Name</label>
-    <input id="officerName">
-  </div>
-
-  <div class="box">
-    <label>Rank</label>
-    <input id="officerRank">
-  </div>
-
-  <div class="box">
-    <label>Badge</label>
-    <input id="officerBadge">
-  </div>
-
-  <div class="box">
-    <label>Division</label>
-    <input id="officerDivision">
-  </div>
+  <input id="officerName" placeholder="Name">
+  <input id="officerRank" placeholder="Rank">
+  <input id="officerBadge" placeholder="Badge #">
+  <input id="officerDivision" placeholder="Division">
 </div>
 
 <label>
-  <input type="checkbox" id="hasOfficers">
-  Additional officers involved
+  <input type="checkbox" id="hasOfficers"> Additional officers
 </label>
 
 <div id="additionalOfficers" class="hidden">
-  <button onclick="addOfficer()">+ Add Additional Officer</button>
+  <button onclick="addOfficer()">+ Add Officer</button>
   <div id="officerList"></div>
 </div>
+</div>
 
-<!-- ================= CASE DETAILS (NOVO) ================= -->
+<div class="section">
 <h3>Case Details</h3>
 
 <div class="section-grid">
 
-  <!-- CHARGES -->
-  <div class="card">
-    <h4>Charges</h4>
-    <input type="text" id="chargeSearch" placeholder="Search charges...">
-    <div id="chargeDropdown"></div>
-    <div id="selectedCharges"></div>
-  </div>
-
-  <!-- EVIDENCE -->
-  <div class="card">
-    <h4>Evidence</h4>
-    <label>
-      <input type="checkbox" id="hasEvidence"> Evidence collected?
-    </label>
-
-    <div id="evidenceField" class="hidden">
-      <textarea id="evidenceText" rows="3" placeholder="Weapons, drugs, other..."></textarea>
-    </div>
-  </div>
-
-  <!-- WITNESSES -->
-  <div class="card">
-    <h4>Witnesses</h4>
-    <label>
-      <input type="checkbox" id="hasWitnesses"> Witnesses present?
-    </label>
-
-    <div id="witnessFields" class="hidden">
-      <button onclick="addWitness()">+ Add</button>
-      <div id="witnessList"></div>
-    </div>
-  </div>
-
-  <!-- LEGAL -->
-  <div class="card">
-    <h4>Legal</h4>
-    <label><input type="checkbox" id="miranda"> Suspect was Mirandized?</label><br>
-    <label><input type="checkbox" id="medical"> Suspect received medical attention?</label>
-  </div>
-
-  <!-- PROCESSING -->
-  <div class="card">
-    <h4>Processing</h4>
-
-    <input id="processingLocation" placeholder="Ganton Sheriff's Station etc."><br><br>
-
-    <label><input type="checkbox" id="mugshot"> Mugshot taken?</label><br>
-    <label><input type="checkbox" id="fingerprints"> Fingerprints collected?</label><br>
-    <label><input type="checkbox" id="dna"> DNA collected?</label>
-  </div>
-
+<div class="card">
+<h4>Charges</h4>
+<input id="chargeSearch" placeholder="Search charges...">
+<div id="chargeDropdown"></div>
+<div id="selectedCharges"></div>
 </div>
 
-<!-- ================= OUTPUT ================= -->
-<br><br>
-<button onclick="generate()">Generate Report</button>
+<div class="card">
+<h4>Evidence</h4>
+<label><input type="checkbox" id="hasEvidence"> Evidence collected?</label>
+<textarea id="evidenceText" class="hidden" rows="3"></textarea>
+</div>
+
+<div class="card">
+<h4>Witnesses</h4>
+<label><input type="checkbox" id="hasWitnesses"> Witnesses?</label>
+<div id="witnessFields" class="hidden">
+<button onclick="addWitness()">+ Add</button>
+<div id="witnessList"></div>
+</div>
+</div>
+
+<div class="card">
+<h4>Legal</h4>
+<label><input type="checkbox" id="miranda"> Mirandized</label><br>
+<label><input type="checkbox" id="medical"> Medical</label>
+</div>
+
+<div class="card">
+<h4>Processing</h4>
+<input id="processingLocation" placeholder="Station">
+<label><input type="checkbox" id="mugshot"> Mugshot</label>
+<label><input type="checkbox" id="fingerprints"> Fingerprints</label>
+<label><input type="checkbox" id="dna"> DNA</label>
+</div>
+
+</div>
+</div>
+
+<button onclick="generate()">Generate</button>
+<button onclick="copyOutput()">Copy</button>
+<button onclick="clearForm()">Clear</button>
 
 <h3>Output</h3>
-<textarea id="output" rows="15"></textarea>
-
-<!-- ================= SCRIPT ================= -->
+<textarea id="output" rows="10"></textarea>
 
 <script src="crimes.js"></script>
 
 <script>
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", () => {
 
-// ================= TOGGLES =================
-document.getElementById("hasVehicle").onchange = function() {
-  document.getElementById("vehicleFields").classList.toggle("hidden", !this.checked);
-};
+// toggles
+hasVehicle.onchange = () => vehicleFields.classList.toggle("hidden", !hasVehicle.checked);
+hasOfficers.onchange = () => additionalOfficers.classList.toggle("hidden", !hasOfficers.checked);
+hasWitnesses.onchange = () => witnessFields.classList.toggle("hidden", !hasWitnesses.checked);
+hasEvidence.onchange = () => evidenceText.classList.toggle("hidden", !hasEvidence.checked);
 
-document.getElementById("hasOfficers").onchange = function() {
-  document.getElementById("additionalOfficers").classList.toggle("hidden", !this.checked);
-};
-
-document.getElementById("hasEvidence").onchange = function() {
-  document.getElementById("evidenceField").classList.toggle("hidden", !this.checked);
-};
-
-document.getElementById("hasWitnesses").onchange = function() {
-  document.getElementById("witnessFields").classList.toggle("hidden", !this.checked);
-};
-
-// ================= OFFICERS =================
-function addOfficer() {
-  const container = document.getElementById("officerList");
-
+// officers
+window.addOfficer = () => {
   const div = document.createElement("div");
-  div.className = "grid";
-  div.style.border = "1px solid #ccc";
-  div.style.padding = "10px";
-  div.style.marginTop = "10px";
-
   div.innerHTML = `
-    <div class="box"><label>Name</label><input class="officerName"></div>
-    <div class="box"><label>Rank</label><input class="officerRank"></div>
-    <div class="box"><label>Badge</label><input class="officerBadge"></div>
-    <div class="box"><label>Division</label><input class="officerDivision"></div>
-    <div class="box full">
-      <button type="button" onclick="this.parentElement.parentElement.remove()">Remove Officer</button>
-    </div>
+    <input class="officerName" placeholder="Name">
+    <input class="officerRank" placeholder="Rank">
+    <input class="officerBadge" placeholder="Badge">
+    <input class="officerDivision" placeholder="Division">
   `;
+  officerList.appendChild(div);
+};
 
-  container.appendChild(div);
-}
-
-window.addOfficer = addOfficer;
-
-// ================= WITNESSES =================
-function addWitness() {
-  const container = document.getElementById("witnessList");
-
+// witnesses
+window.addWitness = () => {
   const div = document.createElement("div");
-  div.style.border = "1px solid #ccc";
-  div.style.padding = "10px";
-  div.style.marginTop = "10px";
-
   div.innerHTML = `
-    <label>Full Name</label><br>
-    <input class="witnessName"><br><br>
-
-    <label>Phone Number</label><br>
-    <input class="witnessPhone"><br><br>
-
-    <label>ID / License Number</label><br>
-    <input class="witnessId"><br><br>
-
-    <button type="button" onclick="this.parentElement.remove()">Remove Witness</button>
+    <input class="witnessName" placeholder="Name">
+    <input class="witnessPhone" placeholder="Phone">
+    <input class="witnessId" placeholder="ID">
   `;
+  witnessList.appendChild(div);
+};
 
-  container.appendChild(div);
-}
-
-window.addWitness = addWitness;
-
-// ================= CHARGES =================
+// charges
 let selectedCharges = [];
 
-const searchInput = document.getElementById("chargeSearch");
-const dropdown = document.getElementById("chargeDropdown");
-const selectedDiv = document.getElementById("selectedCharges");
+chargeSearch.addEventListener("input", () => {
+  chargeDropdown.innerHTML = "";
+  const val = chargeSearch.value.toLowerCase();
 
-// safety check
-if (typeof crimesData === "undefined") {
-  console.error("crimesData not loaded. Check crimes.js");
-} else {
+  if (!val) return;
 
-  // flatten
-  let allCrimes = [];
+  let all = [];
+  Object.values(crimesData).forEach(arr => all.push(...arr));
 
-  Object.keys(crimesData).forEach(category => {
-    crimesData[category].forEach(crime => {
-      allCrimes.push(crime);
-    });
+  all.filter(c => c.crime.toLowerCase().includes(val)).slice(0,10)
+  .forEach(c => {
+    const div = document.createElement("div");
+    div.innerText = `${c.crime} (${c.code})`;
+    div.onclick = () => {
+      selectedCharges.push(c);
+      renderCharges();
+      chargeSearch.value = "";
+      chargeDropdown.innerHTML = "";
+    };
+    chargeDropdown.appendChild(div);
   });
+});
 
-  // search
-  searchInput.addEventListener("input", function() {
-    const value = this.value.toLowerCase();
-    dropdown.innerHTML = "";
+function renderCharges() {
+  selectedCharges.sort((a,b) =>
+    a.classification === b.classification ? 0 :
+    a.classification === "Felony" ? -1 : 1
+  );
 
-    if (!value) return;
+  selectedChargesDiv.innerHTML = "";
 
-    const results = allCrimes.filter(c =>
-      c.crime.toLowerCase().includes(value)
-    );
-
-    results.slice(0, 10).forEach(crime => {
-      const item = document.createElement("div");
-
-      const color = crime.classification === "Felony" ? "red" : "orange";
-
-      item.style.cursor = "pointer";
-      item.style.padding = "5px";
-      item.style.borderBottom = "1px solid #ccc";
-      item.style.color = color;
-
-      item.innerText = `${crime.title} - ${crime.crime} (${crime.code})`;
-
-      item.onclick = () => addCharge(crime);
-
-      dropdown.appendChild(item);
-    });
+  selectedCharges.forEach((c,i)=>{
+    const span = document.createElement("span");
+    span.innerHTML = `${c.crime} <b onclick="removeCharge(${i})">×</b>`;
+    selectedChargesDiv.appendChild(span);
   });
-
-  function addCharge(crime) {
-    if (selectedCharges.find(c => c.title === crime.title)) return;
-
-    selectedCharges.push(crime);
-    renderSelected();
-
-    searchInput.value = "";
-    dropdown.innerHTML = "";
-  }
-
-  function renderSelected() {
-    selectedDiv.innerHTML = "";
-
-    selectedCharges.forEach((crime, index) => {
-      const tag = document.createElement("span");
-
-      const color = crime.classification === "Felony" ? "red" : "orange";
-
-      tag.style.display = "inline-block";
-      tag.style.margin = "3px";
-      tag.style.padding = "5px 8px";
-      tag.style.border = `1px solid ${color}`;
-      tag.style.borderRadius = "5px";
-      tag.style.color = color;
-
-      tag.innerHTML = `
-        ${crime.crime}
-        <b style="cursor:pointer; margin-left:5px;" onclick="removeCharge(${index})">×</b>
-      `;
-
-      selectedDiv.appendChild(tag);
-    });
-  }
-
-  window.removeCharge = function(index) {
-    selectedCharges.splice(index, 1);
-    renderSelected();
-  };
-
-  document.addEventListener("click", function(e) {
-    if (!searchInput.contains(e.target)) {
-      dropdown.innerHTML = "";
-    }
-  });
-
 }
 
-// ================= GENERATE =================
-window.generate = function () {
+window.removeCharge = i => {
+  selectedCharges.splice(i,1);
+  renderCharges();
+};
 
-  // ================= SUSPECT =================
-  const name = document.getElementById("suspectName")?.value || "Unknown";
+// generate
+window.generate = () => {
 
-  const date = document.getElementById("date")?.value || "N/A";
-  const time = document.getElementById("time")?.value || "N/A";
-  const address = document.getElementById("address")?.value || "N/A";
+  const name = suspectName.value || "Unknown";
+  const date = date.value || "N/A";
+  const time = time.value || "N/A";
+  const address = address.value || "N/A";
 
-  // ================= VEHICLE =================
   let vehicle = "N/A";
+  if (hasVehicle.checked)
+    vehicle = `${vehicleModel.value} | ${vehicleColor.value} | Plate ${vehiclePlate.value}`;
 
-  if (document.getElementById("hasVehicle")?.checked) {
-    const model = document.getElementById("vehicleModel")?.value || "";
-    const color = document.getElementById("vehicleColor")?.value || "";
-    const plate = document.getElementById("vehiclePlate")?.value || "";
+  const charges = selectedCharges.length
+    ? selectedCharges.map(c =>
+        `[color=${c.classification==="Felony"?"red":"orange"}]- ${c.crime} (${c.code})[/color]`
+      ).join("\n")
+    : "- None";
 
-    vehicle = `${model} | ${color} | Plate ${plate}`;
-  }
+  let officers = `- ${officerName.value} | ${officerRank.value} | Badge #${officerBadge.value} | ${officerDivision.value}`;
 
-  // ================= CHARGES =================
-const charges = selectedCharges.length
-  ? selectedCharges.map(c => {
-      const color = c.classification === "Felony" ? "red" : "orange";
-      return `[color=${color}]- ${c.crime} (${c.code})[/color]`;
-    }).join("\n")
-  : "- None";
-
-  // ================= OFFICERS =================
-  let officers = "";
-
-  const mainOfficer =
-    (document.getElementById("officerName")?.value || "") + " | " +
-    (document.getElementById("officerRank")?.value || "") + " | " +
-    "Badge #" + (document.getElementById("officerBadge")?.value || "") + " | " +
-    (document.getElementById("officerDivision")?.value || "");
-
-  officers += `- ${mainOfficer}`;
-
-  document.querySelectorAll("#officerList .grid").forEach(el => {
-    const n = el.querySelector(".officerName")?.value || "";
-    const r = el.querySelector(".officerRank")?.value || "";
-    const b = el.querySelector(".officerBadge")?.value || "";
-    const d = el.querySelector(".officerDivision")?.value || "";
-
-    officers += `\n- ${n} | ${r} | Badge #${b} | ${d}`;
+  document.querySelectorAll("#officerList div").forEach(el=>{
+    officers += `\n- ${el.children[0].value} | ${el.children[1].value} | Badge #${el.children[2].value} | ${el.children[3].value}`;
   });
 
-  officers = officers.trim();
-
-  // ================= WITNESSES =================
   let witnesses = "";
-
-  document.querySelectorAll("#witnessList > div").forEach(el => {
-    const n = el.querySelector(".witnessName")?.value || "";
-    const p = el.querySelector(".witnessPhone")?.value || "";
-    const i = el.querySelector(".witnessId")?.value || "";
-
-    witnesses += `- ${n} | Phone Number ${p} | ID/License N° ${i}\n`;
+  document.querySelectorAll("#witnessList div").forEach(el=>{
+    witnesses += `- ${el.children[0].value} | Phone Number ${el.children[1].value} | ID/License N° ${el.children[2].value}\n`;
   });
-
   witnesses = witnesses.trim() || "- None";
 
-  // ================= LEGAL INTO NARRATIVE =================
-  const miranda = document.getElementById("miranda")?.checked;
-  const medical = document.getElementById("medical")?.checked;
+  let legal = "";
+  if (miranda.checked) legal += " The suspect was Mirandized prior to arrest.";
+  if (medical.checked) legal += " Medical assistance was administered prior to transport.";
 
-  let legalNarrative = "";
+  let processing = `Suspect was processed at ${processingLocation.value || "Unknown Station"}.`;
+  if (mugshot.checked) processing += " Mugshot taken.";
+  if (fingerprints.checked) processing += " Fingerprints collected.";
+  if (dna.checked) processing += " DNA collected.";
 
-  if (miranda) {
-    legalNarrative += " The suspect was Mirandized prior to arrest.";
-  }
-
-  if (medical) {
-    legalNarrative += " Medical assistance was administered prior to transport to the processing facility.";
-  }
-
-  // ================= PROCESSING =================
-  const processingLocation =
-    document.getElementById("processingLocation")?.value || "Unknown Station";
-
-  let processing = `Suspect was processed at ${processingLocation}.`;
-
-  if (document.getElementById("mugshot")?.checked) processing += " Mugshot taken.";
-  if (document.getElementById("fingerprints")?.checked) processing += " Fingerprints collected.";
-  if (document.getElementById("dna")?.checked) processing += " DNA collected.";
-
-  // ================= NARRATIVE =================
   const narrative = `
-I was involved in an incident at ${address} on ${date} at approximately ${time} hours. 
+I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
 
-Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
+Upon arrival, I observed the suspect ${name} on scene.
 
-The suspect was detained and processed according to standard LSSD procedures.${legalNarrative}
-  `.trim();
+The suspect was detained without further incident and processed according to standard LSSD procedures.${legal}
+`.trim();
 
-  // ================= OUTPUT =================
-const output = `
+  const output = `
 [departmentmanual]
 [/departmentmanual]
 
@@ -499,7 +325,8 @@ const output = `
 [sectionheader][b]INCIDENT INFORMATION[/b][/sectionheader]
 [sectionbody][b]Date:[/b] ${date}
 [b]Time:[/b] ${time}
-[b]Location:[/b] ${address}[/sectionbody]
+[b]Location:[/b] ${address}
+[/sectionbody]
 
 [sectionheader][b]CHARGES[/b][/sectionheader]
 [sectionbody]${charges}[/sectionbody]
@@ -517,11 +344,26 @@ const output = `
 [sectionbody]${processing}[/sectionbody]
 `.trim();
 
-  document.getElementById("output").value = output;
+  outputField.value = output;
+
+  outputField.style.height = "auto";
+  outputField.style.height = outputField.scrollHeight + "px";
+};
+
+// copy
+window.copyOutput = () => {
+  output.select();
+  document.execCommand("copy");
+};
+
+// clear
+window.clearForm = () => {
+  document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+  selectedCharges = [];
+  selectedChargesDiv.innerHTML = "";
 };
 
 });
-
 </script>
 
 </body>
