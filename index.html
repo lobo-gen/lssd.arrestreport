@@ -2,12 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<body>
-
-<div class="header">
-  <img src="sheriff.png" alt="LSSD Logo">
-  <h2>LSSD Arrest Report Generator</h2>
-</div>
+<title>LSSD Arrest Report Generator</title>
 
 <link rel="icon" type="image/png" href="favicon.png">
 
@@ -54,12 +49,31 @@ textarea {
   margin-left:5px;
   cursor:pointer;
 }
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.header img {
+  width: 60px;
+}
+
+.header h2 {
+  margin: 0;
+}
 </style>
 </head>
 
 <body>
 
-<h2>LSSD Arrest Report Generator</h2>
+<div class="header">
+  <img src="sheriff.png" alt="LSSD Logo">
+  <h2>LSSD Arrest Report Generator</h2>
+</div>
 
 <div class="section-grid">
 
