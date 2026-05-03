@@ -11,6 +11,12 @@ body {
   font-family: Arial;
   max-width: 1100px;
   margin: auto;
+  background-color: #2f4f3a; /* verde LSSD */
+  color: #111;
+}
+
+h2 {
+  color: #fff;
 }
 
 .section-grid {
@@ -23,6 +29,7 @@ body {
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 6px;
+  background: #fff;
 }
 
 textarea {
@@ -72,11 +79,17 @@ textarea {
 <input id="officerRank" placeholder="Rank"><br>
 <input id="officerBadge" placeholder="Badge"><br>
 <input id="officerDivision" placeholder="Division">
+
+<br>
+<label><input type="checkbox" id="hasOfficers"> Additional officers?</label>
+
+<div id="officerList" style="display:none;"></div>
+<button onclick="addOfficer()">+ Add Officer</button>
 </div>
 
 </div>
 
-<h3>Arrest Details</h3>
+<h3 style="color:white;">Arrest Details</h3>
 
 <div class="section-grid">
 
@@ -112,6 +125,13 @@ textarea {
 <label><input type="checkbox" id="dna"> DNA</label>
 </div>
 
+<!-- EVIDENCE -->
+<div class="card">
+<h4>Evidence</h4>
+<textarea id="evidence" rows="5"
+placeholder="Quantity of seized drugs or weapons, links to evidence photographs"></textarea>
+</div>
+
 <!-- NARRATIVE -->
 <div class="card">
 <h4>Narrative (editable)</h4>
@@ -126,14 +146,14 @@ textarea {
 <button onclick="copyOutput()">Copy</button>
 <button onclick="clearForm()">Clear</button>
 
-<h3>Output</h3>
+<h3 style="color:white;">Output</h3>
 <textarea id="output" rows="15"></textarea>
 
 <script src="crimes.js"></script>
 
 <script>
 
-// ================= SAFE GET =================
+// helper
 const $ = id => document.getElementById(id);
 
 // ================= LOCAL STORAGE =================
@@ -151,69 +171,28 @@ document.querySelectorAll("input, textarea").forEach(el => {
   });
 });
 
-  // ================= AUTO NARRATIVE =================
-
-let narrativeManuallyEdited = false;
-
-const narrativeField = $("narrativePreview");
-
-// detecta edição manual
-narrativeField.addEventListener("input", () => {
-  narrativeManuallyEdited = true;
-});
-
-// função que monta narrativa
-function buildNarrative() {
-
-  const address = $("address").value || "Unknown location";
-  const date = $("date").value || "unknown date";
-  const time = $("time").value || "unknown time";
-
-  let legal = "";
-  if ($("miranda").checked) {
-    legal += " The suspect was Mirandized.";
-  }
-
-  if ($("medical").checked) {
-    legal += " The suspect received medical attention.";
-  }
-
-  return `I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
-
-Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
-
-The suspect was detained and processed according to standard LSSD procedures.${legal}`;
-}
-
-// atualiza automaticamente
-function updateNarrative() {
-  if (!narrativeManuallyEdited) {
-    narrativeField.value = buildNarrative();
-  }
-}
-
-// campos que influenciam narrativa
-[
-  "address",
-  "date",
-  "time",
-  "miranda",
-  "medical"
-].forEach(id => {
-  const el = $(id);
-  if (!el) return;
-
-  el.addEventListener("input", updateNarrative);
-  el.addEventListener("change", updateNarrative);
-});
-
-// inicializa ao carregar
-updateNarrative();
-
 // ================= VEHICLE =================
 $("hasVehicle").onchange = () => {
   $("vehicleFields").style.display = $("hasVehicle").checked ? "block" : "none";
 };
+
+// ================= OFFICERS =================
+$("hasOfficers").onchange = () => {
+  $("officerList").style.display = $("hasOfficers").checked ? "block" : "none";
+};
+
+function addOfficer() {
+  const div = document.createElement("div");
+
+  div.innerHTML = `
+    <input class="officerName" placeholder="Name"><br>
+    <input class="officerRank" placeholder="Rank"><br>
+    <input class="officerBadge" placeholder="Badge"><br>
+    <input class="officerDivision" placeholder="Division"><br><br>
+  `;
+
+  $("officerList").appendChild(div);
+}
 
 // ================= WITNESSES =================
 function addWitness() {
@@ -290,6 +269,42 @@ function removeCharge(i) {
   renderCharges();
 }
 
+// ================= AUTO NARRATIVE =================
+let narrativeEdited = false;
+
+$("narrativePreview").addEventListener("input", () => {
+  narrativeEdited = true;
+});
+
+function buildNarrative() {
+  const address = $("address").value || "Unknown location";
+  const date = $("date").value || "unknown date";
+  const time = $("time").value || "unknown time";
+
+  let legal = "";
+  if ($("miranda").checked) legal += " The suspect was Mirandized.";
+  if ($("medical").checked) legal += " The suspect received medical attention.";
+
+  return `I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
+
+Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
+
+The suspect was detained and processed according to standard LSSD procedures.${legal}`;
+}
+
+function updateNarrative() {
+  if (!narrativeEdited) {
+    $("narrativePreview").value = buildNarrative();
+  }
+}
+
+["address","date","time","miranda","medical"].forEach(id => {
+  $(id).addEventListener("input", updateNarrative);
+  $(id).addEventListener("change", updateNarrative);
+});
+
+updateNarrative();
+
 // ================= GENERATE =================
 function generate() {
 
@@ -310,7 +325,16 @@ function generate() {
       }).join("\n")
     : "- None";
 
-  const officer = `${$("officerName").value} | ${$("officerRank").value} | Badge #${$("officerBadge").value} | ${$("officerDivision").value}`;
+  let officers = `- ${$("officerName").value} | ${$("officerRank").value} | Badge #${$("officerBadge").value} | ${$("officerDivision").value}`;
+
+  document.querySelectorAll("#officerList div").forEach(el => {
+    const n = el.querySelector(".officerName")?.value || "";
+    const r = el.querySelector(".officerRank")?.value || "";
+    const b = el.querySelector(".officerBadge")?.value || "";
+    const d = el.querySelector(".officerDivision")?.value || "";
+
+    officers += `\n- ${n} | ${r} | Badge #${b} | ${d}`;
+  });
 
   let witnesses = "";
   document.querySelectorAll("#witnessList div").forEach(el => {
@@ -323,24 +347,14 @@ function generate() {
 
   witnesses = witnesses.trim() || "- None";
 
-  let legal = "";
-  if ($("miranda").checked) legal += " The suspect was Mirandized.";
-  if ($("medical").checked) legal += " The suspect received medical attention.";
-
   let processing = `Suspect was processed at ${$("processingLocation").value || "Unknown"}.`;
   if ($("mugshot").checked) processing += " Mugshot taken.";
   if ($("fingerprints").checked) processing += " Fingerprints collected.";
   if ($("dna").checked) processing += " DNA collected.";
 
-  let narrative = $("narrativePreview").value;
+  const narrative = $("narrativePreview").value;
 
-  if (!narrative) {
-    narrative = `I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
-
-Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
-
-The suspect was detained and processed according to standard LSSD procedures.${legal}`;
-  }
+  const evidence = $("evidence").value || "None";
 
   const output = `
 [departmentmanual]
@@ -361,11 +375,14 @@ The suspect was detained and processed according to standard LSSD procedures.${l
 [sectionheader][b]CHARGES[/b][/sectionheader]
 [sectionbody]${charges}[/sectionbody]
 
+[sectionheader][b]EVIDENCE[/b][/sectionheader]
+[sectionbody]${evidence}[/sectionbody]
+
 [sectionheader][b]NARRATIVE[/b][/sectionheader]
 [sectionbody]${narrative}[/sectionbody]
 
 [sectionheader][b]OFFICERS[/b][/sectionheader]
-[sectionbody]- ${officer}[/sectionbody]
+[sectionbody]${officers}[/sectionbody]
 
 [sectionheader][b]WITNESSES[/b][/sectionheader]
 [sectionbody]${witnesses}[/sectionbody]
@@ -379,8 +396,7 @@ The suspect was detained and processed according to standard LSSD procedures.${l
 
 // ================= COPY =================
 function copyOutput() {
-  const out = $("output");
-  out.select();
+  $("output").select();
   document.execCommand("copy");
 }
 
