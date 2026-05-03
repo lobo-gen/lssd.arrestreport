@@ -85,7 +85,7 @@ textarea {
 <h4>Suspect</h4>
 <input id="suspectName" placeholder="Full Name"><br><br>
 
-<label><input type="checkbox" id="hasVehicle"> Vehicle?</label>
+<label><input type="checkbox" id="hasVehicle"> Was the suspect in a vehicle?</label>
 
 <div id="vehicleFields" style="display:none;">
 <input id="vehicleModel" placeholder="Model"><br>
@@ -98,7 +98,7 @@ textarea {
 <h4>Incident</h4>
 <input type="date" id="date"><br><br>
 <input type="time" id="time"><br><br>
-<input id="address" placeholder="Address">
+<input id="address" placeholder="Incident Address">
 </div>
 
 <div class="card">
@@ -109,7 +109,7 @@ textarea {
 <input id="officerDivision" placeholder="Division">
 
 <br>
-<label><input type="checkbox" id="hasOfficers"> Additional officers?</label>
+<label><input type="checkbox" id="hasOfficers"> Additional officers involved?</label>
 
 <div id="officerList" style="display:none;"></div>
 <button id="addOfficerBtn" onclick="addOfficer()" style="display:none;">+ Add Officer</button>
@@ -144,9 +144,9 @@ textarea {
 <h4>Processing</h4>
 <input id="processingLocation" placeholder="e.g. Ganton Station"><br><br>
 
-<label><input type="checkbox" id="mugshot"> Mugshot</label><br>
-<label><input type="checkbox" id="fingerprints"> Fingerprints</label><br>
-<label><input type="checkbox" id="dna"> DNA</label>
+<label><input type="checkbox" id="mugshot"> Mugshot taken?</label><br>
+<label><input type="checkbox" id="fingerprints"> Fingerprints taken?</label><br>
+<label><input type="checkbox" id="dna"> DNA collected?</label>
 </div>
 
 <div class="card">
