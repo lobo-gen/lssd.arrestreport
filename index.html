@@ -11,11 +11,7 @@ body {
   font-family: Arial;
   max-width: 1100px;
   margin: auto;
-  background-color: #2f4f3a; /* verde LSSD */
-  color: #111;
-}
-
-h2 {
+  background-color: #2f4f3a;
   color: #fff;
 }
 
@@ -30,6 +26,7 @@ h2 {
   padding: 10px;
   border-radius: 6px;
   background: #fff;
+  color: #111;
 }
 
 textarea {
@@ -43,6 +40,15 @@ textarea {
   border-radius:4px;
   border:1px solid;
 }
+
+#selectedCharges {
+  margin-top:5px;
+}
+
+.charge-tag b {
+  margin-left:5px;
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -50,7 +56,6 @@ textarea {
 
 <h2>LSSD Arrest Report Generator</h2>
 
-<!-- TOP -->
 <div class="section-grid">
 
 <div class="card">
@@ -84,16 +89,15 @@ textarea {
 <label><input type="checkbox" id="hasOfficers"> Additional officers?</label>
 
 <div id="officerList" style="display:none;"></div>
-<button onclick="addOfficer()">+ Add Officer</button>
+<button id="addOfficerBtn" onclick="addOfficer()" style="display:none;">+ Add Officer</button>
 </div>
 
 </div>
 
-<h3 style="color:white;">Arrest Details</h3>
+<h3>Arrest Details</h3>
 
 <div class="section-grid">
 
-<!-- CHARGES -->
 <div class="card">
 <h4>Charges</h4>
 <input id="chargeSearch" placeholder="Search...">
@@ -101,38 +105,33 @@ textarea {
 <div id="selectedCharges"></div>
 </div>
 
-<!-- WITNESSES -->
 <div class="card">
 <h4>Witnesses</h4>
 <button onclick="addWitness()">+ Add</button>
 <div id="witnessList"></div>
 </div>
 
-<!-- LEGAL -->
 <div class="card">
 <h4>Legal</h4>
 <label><input type="checkbox" id="miranda"> Was suspect Mirandized?</label><br>
 <label><input type="checkbox" id="medical"> Suspect received medical attention?</label>
 </div>
 
-<!-- PROCESSING -->
 <div class="card">
 <h4>Processing</h4>
-<input id="processingLocation" placeholder="ex: Ganton Station"><br><br>
+<input id="processingLocation" placeholder="e.g. Ganton Station"><br><br>
 
 <label><input type="checkbox" id="mugshot"> Mugshot</label><br>
 <label><input type="checkbox" id="fingerprints"> Fingerprints</label><br>
 <label><input type="checkbox" id="dna"> DNA</label>
 </div>
 
-<!-- EVIDENCE -->
 <div class="card">
 <h4>Evidence</h4>
 <textarea id="evidence" rows="5"
 placeholder="Quantity of seized drugs or weapons, links to evidence photographs"></textarea>
 </div>
 
-<!-- NARRATIVE -->
 <div class="card">
 <h4>Narrative (editable)</h4>
 <textarea id="narrativePreview" rows="8"></textarea>
@@ -146,14 +145,13 @@ placeholder="Quantity of seized drugs or weapons, links to evidence photographs"
 <button onclick="copyOutput()">Copy</button>
 <button onclick="clearForm()">Clear</button>
 
-<h3 style="color:white;">Output</h3>
+<h3>Output</h3>
 <textarea id="output" rows="15"></textarea>
 
 <script src="crimes.js"></script>
 
 <script>
 
-// helper
 const $ = id => document.getElementById(id);
 
 // ================= LOCAL STORAGE =================
@@ -171,6 +169,18 @@ document.querySelectorAll("input, textarea").forEach(el => {
   });
 });
 
+// restore dynamic
+const savedCharges = localStorage.getItem("selectedCharges");
+if (savedCharges) {
+  selectedCharges = JSON.parse(savedCharges);
+}
+
+const wHTML = localStorage.getItem("witnessHTML");
+if (wHTML) $("witnessList").innerHTML = wHTML;
+
+const oHTML = localStorage.getItem("officerHTML");
+if (oHTML) $("officerList").innerHTML = oHTML;
+
 // ================= VEHICLE =================
 $("hasVehicle").onchange = () => {
   $("vehicleFields").style.display = $("hasVehicle").checked ? "block" : "none";
@@ -178,7 +188,9 @@ $("hasVehicle").onchange = () => {
 
 // ================= OFFICERS =================
 $("hasOfficers").onchange = () => {
-  $("officerList").style.display = $("hasOfficers").checked ? "block" : "none";
+  const show = $("hasOfficers").checked;
+  $("officerList").style.display = show ? "block" : "none";
+  $("addOfficerBtn").style.display = show ? "inline-block" : "none";
 };
 
 function addOfficer() {
@@ -236,6 +248,8 @@ $("chargeSearch").addEventListener("input", function() {
       el.style.cursor = "pointer";
 
       el.onclick = () => {
+        if (selectedCharges.some(x => x.code === c.code)) return;
+
         selectedCharges.push(c);
         renderCharges();
         $("chargeSearch").value = "";
@@ -244,6 +258,13 @@ $("chargeSearch").addEventListener("input", function() {
 
       dropdown.appendChild(el);
     });
+});
+
+// close dropdown
+document.addEventListener("click", e => {
+  if (!$("chargeSearch").contains(e.target)) {
+    $("chargeDropdown").innerHTML = "";
+  }
 });
 
 function renderCharges() {
@@ -258,7 +279,7 @@ function renderCharges() {
     tag.style.color = color;
     tag.style.borderColor = color;
 
-    tag.innerHTML = `${c.crime} <b style="cursor:pointer" onclick="removeCharge(${i})">×</b>`;
+    tag.innerHTML = `${c.crime} <b onclick="removeCharge(${i})">×</b>`;
 
     container.appendChild(tag);
   });
@@ -273,7 +294,7 @@ function removeCharge(i) {
 let narrativeEdited = false;
 
 $("narrativePreview").addEventListener("input", () => {
-  narrativeEdited = true;
+  narrativeEdited = $("narrativePreview").value.trim().length > 0;
 });
 
 function buildNarrative() {
@@ -353,8 +374,12 @@ function generate() {
   if ($("dna").checked) processing += " DNA collected.";
 
   const narrative = $("narrativePreview").value;
-
   const evidence = $("evidence").value || "None";
+
+  // save dynamic
+  localStorage.setItem("selectedCharges", JSON.stringify(selectedCharges));
+  localStorage.setItem("witnessHTML", $("witnessList").innerHTML);
+  localStorage.setItem("officerHTML", $("officerList").innerHTML);
 
   const output = `
 [departmentmanual]
