@@ -1,274 +1,277 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>LSSD Arrest Report Generator</title>
+<meta charset="UTF-8">
+<title>LSSD Arrest Report Generator</title>
 
-  <link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
 
-  <style>
-    body {
-      font-family: Arial;
-      max-width: 1100px;
-      margin: auto;
-    }
+<style>
+body {
+  font-family: Arial;
+  max-width: 1100px;
+  margin: auto;
+}
 
-    .section {
-      border: 1px solid #ccc;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
+h3 {
+  margin-top: 30px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
 
-    .full { grid-column: span 4; }
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 
-    .hidden { display: none; }
+.card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 6px;
+}
 
-    textarea {
-      width: 100%;
-      resize: none;
-    }
-
-    .section-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .card {
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 6px;
-    }
-
-    button {
-      background: #2b2b2b;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 5px;
-    }
-
-    button:hover {
-      background: #444;
-    }
-  </style>
+textarea {
+  width: 100%;
+}
+</style>
 </head>
 
 <body>
 
 <h2>LSSD Arrest Report Generator</h2>
 
-<div class="section">
-<h3>Suspect</h3>
-<div class="grid">
-<input id="suspectName" placeholder="John Doe">
-<label><input type="checkbox" id="hasVehicle"> Vehicle?</label>
-</div>
+<!-- ================= TOP CARD ================= -->
+<div class="section-grid">
 
-<div id="vehicleFields" class="grid hidden">
-<input id="vehicleModel" placeholder="Model">
-<input id="vehicleColor" placeholder="Color">
+<div class="card">
+<h4>Suspect</h4>
+<input id="suspectName" placeholder="Full Name"><br><br>
+
+<label>
+<input type="checkbox" id="hasVehicle"> Vehicle?
+</label>
+
+<div id="vehicleFields" style="display:none;">
+<input id="vehicleModel" placeholder="Model"><br>
+<input id="vehicleColor" placeholder="Color"><br>
 <input id="vehiclePlate" placeholder="Plate">
 </div>
 </div>
 
-<div class="section">
-<h3>Incident</h3>
-<div class="grid">
-<input type="date" id="date">
-<input type="time" id="time">
-<input class="full" id="address" placeholder="Location">
-</div>
+<div class="card">
+<h4>Incident</h4>
+<input type="date" id="date"><br><br>
+<input type="time" id="time"><br><br>
+<input id="address" placeholder="Address">
 </div>
 
-<div class="section">
-<h3>Officer</h3>
-<div class="grid">
-<input id="officerName" placeholder="Name">
-<input id="officerRank" placeholder="Rank">
-<input id="officerBadge" placeholder="Badge">
+<div class="card">
+<h4>Officer</h4>
+<input id="officerName" placeholder="Name"><br>
+<input id="officerRank" placeholder="Rank"><br>
+<input id="officerBadge" placeholder="Badge"><br>
 <input id="officerDivision" placeholder="Division">
 </div>
+
 </div>
 
-<div class="section">
+<!-- ================= CASE ================= -->
 <h3>Case Details</h3>
 
 <div class="section-grid">
 
 <div class="card">
 <h4>Charges</h4>
-<input id="chargeSearch" placeholder="Search charges...">
+<input id="chargeSearch" placeholder="Search...">
 <div id="chargeDropdown"></div>
 <div id="selectedCharges"></div>
 </div>
 
 <div class="card">
 <h4>Witnesses</h4>
-<label><input type="checkbox" id="hasWitnesses"> Witnesses?</label>
-<div id="witnessFields" class="hidden">
 <button onclick="addWitness()">+ Add</button>
 <div id="witnessList"></div>
-</div>
 </div>
 
 <div class="card">
 <h4>Legal</h4>
-<label><input type="checkbox" id="miranda"> Was suspect mirandized?</label><br>
-<label><input type="checkbox" id="medical"> Suspect received medical attention?</label>
+<label><input type="checkbox" id="miranda"> Was suspect Mirandized?</label><br>
+<label><input type="checkbox" id="medical"> Medical attention?</label>
 </div>
 
-<div class="card full">
+<div class="card">
 <h4>Processing</h4>
+<input id="processingLocation" placeholder="ex: Ganton Station"><br><br>
 
-<input id="processingLocation" placeholder="Which station suspect was processed">
-
-<div style="margin-top:10px;">
-<label><input type="checkbox" id="mugshot"> Mugshot taken?</label><br>
-<label><input type="checkbox" id="fingerprints"> Fingerprints collected?</label><br>
-<label><input type="checkbox" id="dna"> DNA collected?</label>
+<label><input type="checkbox" id="mugshot"> Mugshot</label><br>
+<label><input type="checkbox" id="fingerprints"> Fingerprints</label><br>
+<label><input type="checkbox" id="dna"> DNA</label>
 </div>
 
 </div>
 
-</div>
-</div>
-
-<button onclick="generate()">Generate</button>
-<button onclick="copyOutput()">Copy</button>
+<br>
+<button onclick="generate()">Generate Report</button>
 
 <h3>Output</h3>
-<textarea id="output" rows="10"></textarea>
+<textarea id="output" rows="15"></textarea>
 
 <script src="crimes.js"></script>
 
 <script>
 
-window.addEventListener("DOMContentLoaded", () => {
+// ================= LOCAL STORAGE =================
+const fields = document.querySelectorAll("input, textarea");
 
-// toggles
-document.getElementById("hasVehicle").onchange = e =>
-  document.getElementById("vehicleFields").classList.toggle("hidden", !e.target.checked);
+fields.forEach(f => {
+  const saved = localStorage.getItem(f.id);
+  if (saved !== null) {
+    if (f.type === "checkbox") {
+      f.checked = saved === "true";
+    } else {
+      f.value = saved;
+    }
+  }
 
-document.getElementById("hasWitnesses").onchange = e =>
-  document.getElementById("witnessFields").classList.toggle("hidden", !e.target.checked);
-
-// witnesses
-window.addWitness = () => {
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <input class="witnessName" placeholder="Name">
-    <input class="witnessPhone" placeholder="Phone">
-    <input class="witnessId" placeholder="ID">
-  `;
-  document.getElementById("witnessList").appendChild(div);
-};
-
-// charges
-let selectedCharges = [];
-
-document.getElementById("chargeSearch").addEventListener("input", function() {
-  const val = this.value.toLowerCase();
-  const dropdown = document.getElementById("chargeDropdown");
-  dropdown.innerHTML = "";
-
-  if (!val) return;
-
-  let all = [];
-  Object.values(crimesData).forEach(arr => all.push(...arr));
-
-  all.filter(c => c.crime.toLowerCase().includes(val)).slice(0,10)
-  .forEach(c => {
-    const div = document.createElement("div");
-    div.innerText = `${c.crime} (${c.code})`;
-    div.style.cursor = "pointer";
-
-    div.onclick = () => {
-      selectedCharges.push(c);
-      renderCharges();
-      this.value = "";
-      dropdown.innerHTML = "";
-    };
-
-    dropdown.appendChild(div);
+  f.addEventListener("input", () => {
+    localStorage.setItem(f.id, f.type === "checkbox" ? f.checked : f.value);
   });
 });
 
-function renderCharges() {
-  selectedCharges.sort((a,b) =>
-    a.classification === b.classification ? 0 :
-    a.classification === "Felony" ? -1 : 1
-  );
+// ================= VEHICLE TOGGLE =================
+document.getElementById("hasVehicle").onchange = function() {
+  document.getElementById("vehicleFields").style.display =
+    this.checked ? "block" : "none";
+};
 
-  const container = document.getElementById("selectedCharges");
-  container.innerHTML = "";
+// ================= WITNESSES =================
+function addWitness() {
+  const div = document.createElement("div");
 
-  selectedCharges.forEach((c,i)=>{
-    const span = document.createElement("span");
-    span.innerHTML = `${c.crime} <b style="cursor:pointer" onclick="removeCharge(${i})">×</b>`;
-    container.appendChild(span);
+  div.innerHTML = `
+    <input class="witnessName" placeholder="Name"><br>
+    <input class="witnessPhone" placeholder="Phone"><br>
+    <input class="witnessId" placeholder="ID"><br><br>
+  `;
+
+  document.getElementById("witnessList").appendChild(div);
+}
+
+window.addWitness = addWitness;
+
+// ================= CHARGES =================
+let selectedCharges = [];
+
+const search = document.getElementById("chargeSearch");
+const dropdown = document.getElementById("chargeDropdown");
+
+let allCrimes = [];
+
+if (typeof crimesData !== "undefined") {
+  Object.values(crimesData).forEach(cat => {
+    cat.forEach(c => allCrimes.push(c));
   });
 }
 
-window.removeCharge = i => {
-  selectedCharges.splice(i,1);
-  renderCharges();
-};
+search.addEventListener("input", function() {
+  dropdown.innerHTML = "";
 
-// GENERATE
-window.generate = function() {
+  const val = this.value.toLowerCase();
+  if (!val) return;
 
-  const get = id => document.getElementById(id);
+  allCrimes
+    .filter(c => c.crime.toLowerCase().includes(val))
+    .slice(0, 10)
+    .forEach(c => {
+      const el = document.createElement("div");
 
-  const name = get("suspectName").value || "Unknown";
-  const date = get("date").value || "N/A";
-  const time = get("time").value || "N/A";
-  const address = get("address").value || "N/A";
+      el.innerText = `${c.crime} (${c.code})`;
+      el.style.cursor = "pointer";
+
+      el.onclick = () => {
+        selectedCharges.push(c);
+        renderCharges();
+        search.value = "";
+        dropdown.innerHTML = "";
+      };
+
+      dropdown.appendChild(el);
+    });
+});
+
+function renderCharges() {
+  const div = document.getElementById("selectedCharges");
+  div.innerHTML = "";
+
+  selectedCharges.forEach(c => {
+    const color = c.classification === "Felony" ? "red" : "orange";
+
+    const tag = document.createElement("span");
+    tag.style.color = color;
+    tag.innerText = c.crime + " ";
+
+    div.appendChild(tag);
+  });
+}
+
+// ================= GENERATE =================
+window.generate = function () {
+
+  const name = document.getElementById("suspectName").value || "Unknown";
+  const date = document.getElementById("date").value || "N/A";
+  const time = document.getElementById("time").value || "N/A";
+  const address = document.getElementById("address").value || "N/A";
 
   let vehicle = "N/A";
-  if (get("hasVehicle").checked) {
-    vehicle = `${get("vehicleModel").value} | ${get("vehicleColor").value} | Plate ${get("vehiclePlate").value}`;
+  if (document.getElementById("hasVehicle").checked) {
+    vehicle = `${vehicleModel.value} | ${vehicleColor.value} | Plate ${vehiclePlate.value}`;
   }
 
+  // 🔴 charges coloridas corrigidas
   const charges = selectedCharges.length
-    ? selectedCharges.map(c =>
-      `[color=${c.classification==="Felony"?"red":"orange"}]- ${c.crime} (${c.code})[/color]`
-    ).join("\n")
+    ? selectedCharges.map(c => {
+        const color = c.classification === "Felony" ? "red" : "orange";
+        return `[color=${color}]- ${c.crime} (${c.code})[/color]`;
+      }).join("\n")
     : "- None";
 
-  const officers = `- ${get("officerName").value} | ${get("officerRank").value} | Badge #${get("officerBadge").value} | ${get("officerDivision").value}`;
+  const officer = `${officerName.value} | ${officerRank.value} | Badge #${officerBadge.value} | ${officerDivision.value}`;
 
   let witnesses = "";
-  document.querySelectorAll("#witnessList div").forEach(el=>{
-    witnesses += `- ${el.children[0].value} | Phone Number ${el.children[1].value} | ID/License N° ${el.children[2].value}\n`;
+  document.querySelectorAll("#witnessList div").forEach(el => {
+    const n = el.querySelector(".witnessName").value;
+    const p = el.querySelector(".witnessPhone").value;
+    const i = el.querySelector(".witnessId").value;
+
+    witnesses += `- ${n} | Phone Number ${p} | ID/License N° ${i}\n`;
   });
+
   witnesses = witnesses.trim() || "- None";
 
   let legal = "";
-  if (get("miranda").checked) legal += " The suspect was Mirandized prior to arrest.";
-  if (get("medical").checked) legal += " Medical assistance was administered prior to transport.";
+  if (miranda.checked) legal += " The suspect was Mirandized.";
+  if (medical.checked) legal += " The suspect received medical attention.";
 
-  let processing = `Suspect was processed at ${get("processingLocation").value || "Unknown Station"}.`;
-  if (get("mugshot").checked) processing += " Mugshot taken.";
-  if (get("fingerprints").checked) processing += " Fingerprints collected.";
-  if (get("dna").checked) processing += " DNA collected.";
+  let processing = `Suspect was processed at ${processingLocation.value || "Unknown"}.`;
+  if (mugshot.checked) processing += " Mugshot taken.";
+  if (fingerprints.checked) processing += " Fingerprints collected.";
+  if (dna.checked) processing += " DNA collected.";
 
   const narrative = `
 I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
 
-Upon arrival, I observed the suspect ${name} on scene.
+Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
 
-The suspect was detained without further incident and processed according to standard LSSD procedures.${legal}
-`.trim();
+The suspect was detained and processed according to standard LSSD procedures.${legal}
+  `.trim();
 
   const output = `
 [departmentmanual]
@@ -284,8 +287,7 @@ The suspect was detained without further incident and processed according to sta
 [sectionheader][b]INCIDENT INFORMATION[/b][/sectionheader]
 [sectionbody][b]Date:[/b] ${date}
 [b]Time:[/b] ${time}
-[b]Location:[/b] ${address}
-[/sectionbody]
+[b]Location:[/b] ${address}[/sectionbody]
 
 [sectionheader][b]CHARGES[/b][/sectionheader]
 [sectionbody]${charges}[/sectionbody]
@@ -294,7 +296,7 @@ The suspect was detained without further incident and processed according to sta
 [sectionbody]${narrative}[/sectionbody]
 
 [sectionheader][b]OFFICERS[/b][/sectionheader]
-[sectionbody]${officers}[/sectionbody]
+[sectionbody]- ${officer}[/sectionbody]
 
 [sectionheader][b]WITNESSES[/b][/sectionheader]
 [sectionbody]${witnesses}[/sectionbody]
@@ -303,21 +305,8 @@ The suspect was detained without further incident and processed according to sta
 [sectionbody]${processing}[/sectionbody]
 `.trim();
 
-  get("output").value = output;
-
-  const textarea = get("output");
-  textarea.style.height = "auto";
-  textarea.style.height = textarea.scrollHeight + "px";
+  document.getElementById("output").value = output;
 };
-
-// COPY
-window.copyOutput = () => {
-  const el = document.getElementById("output");
-  el.select();
-  document.execCommand("copy");
-};
-
-});
 
 </script>
 
