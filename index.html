@@ -151,6 +151,65 @@ document.querySelectorAll("input, textarea").forEach(el => {
   });
 });
 
+  // ================= AUTO NARRATIVE =================
+
+let narrativeManuallyEdited = false;
+
+const narrativeField = $("narrativePreview");
+
+// detecta edição manual
+narrativeField.addEventListener("input", () => {
+  narrativeManuallyEdited = true;
+});
+
+// função que monta narrativa
+function buildNarrative() {
+
+  const address = $("address").value || "Unknown location";
+  const date = $("date").value || "unknown date";
+  const time = $("time").value || "unknown time";
+
+  let legal = "";
+  if ($("miranda").checked) {
+    legal += " The suspect was Mirandized.";
+  }
+
+  if ($("medical").checked) {
+    legal += " The suspect received medical attention.";
+  }
+
+  return `I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
+
+Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
+
+The suspect was detained and processed according to standard LSSD procedures.${legal}`;
+}
+
+// atualiza automaticamente
+function updateNarrative() {
+  if (!narrativeManuallyEdited) {
+    narrativeField.value = buildNarrative();
+  }
+}
+
+// campos que influenciam narrativa
+[
+  "address",
+  "date",
+  "time",
+  "miranda",
+  "medical"
+].forEach(id => {
+  const el = $(id);
+  if (!el) return;
+
+  el.addEventListener("input", updateNarrative);
+  el.addEventListener("change", updateNarrative);
+});
+
+// inicializa ao carregar
+updateNarrative();
+
 // ================= VEHICLE =================
 $("hasVehicle").onchange = () => {
   $("vehicleFields").style.display = $("hasVehicle").checked ? "block" : "none";
