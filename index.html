@@ -19,13 +19,6 @@ h3 {
   padding-bottom: 5px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
 .section-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -48,16 +41,14 @@ textarea {
 
 <h2>LSSD Arrest Report Generator</h2>
 
-<!-- ================= TOP CARD ================= -->
+<!-- TOP -->
 <div class="section-grid">
 
 <div class="card">
 <h4>Suspect</h4>
 <input id="suspectName" placeholder="Full Name"><br><br>
 
-<label>
-<input type="checkbox" id="hasVehicle"> Vehicle?
-</label>
+<label><input type="checkbox" id="hasVehicle"> Vehicle?</label>
 
 <div id="vehicleFields" style="display:none;">
 <input id="vehicleModel" placeholder="Model"><br>
@@ -83,11 +74,12 @@ textarea {
 
 </div>
 
-<!-- ================= CASE ================= -->
-<h3>Case Details</h3>
+<!-- DETAILS -->
+<h3>Arrest Details</h3>
 
 <div class="section-grid">
 
+<!-- CHARGES -->
 <div class="card">
 <h4>Charges</h4>
 <input id="chargeSearch" placeholder="Search...">
@@ -95,18 +87,21 @@ textarea {
 <div id="selectedCharges"></div>
 </div>
 
+<!-- WITNESSES -->
 <div class="card">
 <h4>Witnesses</h4>
 <button onclick="addWitness()">+ Add</button>
 <div id="witnessList"></div>
 </div>
 
+<!-- LEGAL -->
 <div class="card">
 <h4>Legal</h4>
 <label><input type="checkbox" id="miranda"> Was suspect Mirandized?</label><br>
-<label><input type="checkbox" id="medical"> Medical attention?</label>
+<label><input type="checkbox" id="medical"> Suspect received medical attention?</label>
 </div>
 
+<!-- PROCESSING -->
 <div class="card">
 <h4>Processing</h4>
 <input id="processingLocation" placeholder="ex: Ganton Station"><br><br>
@@ -116,10 +111,19 @@ textarea {
 <label><input type="checkbox" id="dna"> DNA</label>
 </div>
 
+<!-- NARRATIVE PREVIEW -->
+<div class="card">
+<h4>Narrative Preview (editable)</h4>
+<textarea id="narrativePreview" rows="8"></textarea>
+</div>
+
 </div>
 
 <br>
+
 <button onclick="generate()">Generate Report</button>
+<button onclick="copyOutput()">Copy</button>
+<button onclick="clearForm()">Clear</button>
 
 <h3>Output</h3>
 <textarea id="output" rows="15"></textarea>
@@ -146,10 +150,9 @@ fields.forEach(f => {
   });
 });
 
-// ================= VEHICLE TOGGLE =================
-document.getElementById("hasVehicle").onchange = function() {
-  document.getElementById("vehicleFields").style.display =
-    this.checked ? "block" : "none";
+// ================= VEHICLE =================
+hasVehicle.onchange = () => {
+  vehicleFields.style.display = hasVehicle.checked ? "block" : "none";
 };
 
 // ================= WITNESSES =================
@@ -162,10 +165,8 @@ function addWitness() {
     <input class="witnessId" placeholder="ID"><br><br>
   `;
 
-  document.getElementById("witnessList").appendChild(div);
+  witnessList.appendChild(div);
 }
-
-window.addWitness = addWitness;
 
 // ================= CHARGES =================
 let selectedCharges = [];
@@ -191,9 +192,11 @@ search.addEventListener("input", function() {
     .filter(c => c.crime.toLowerCase().includes(val))
     .slice(0, 10)
     .forEach(c => {
-      const el = document.createElement("div");
 
-      el.innerText = `${c.crime} (${c.code})`;
+      const color = c.classification === "Felony" ? "red" : "orange";
+
+      const el = document.createElement("div");
+      el.innerHTML = `<span style="color:${color}">${c.crime} (${c.code})</span>`;
       el.style.cursor = "pointer";
 
       el.onclick = () => {
@@ -208,34 +211,41 @@ search.addEventListener("input", function() {
 });
 
 function renderCharges() {
-  const div = document.getElementById("selectedCharges");
-  div.innerHTML = "";
+  selectedChargesDiv.innerHTML = "";
 
-  selectedCharges.forEach(c => {
+  selectedCharges.forEach((c, i) => {
     const color = c.classification === "Felony" ? "red" : "orange";
 
     const tag = document.createElement("span");
-    tag.style.color = color;
-    tag.innerText = c.crime + " ";
+    tag.innerHTML = `
+      <span style="color:${color}">
+        ${c.crime} 
+        <b style="cursor:pointer" onclick="removeCharge(${i})">×</b>
+      </span>
+    `;
 
-    div.appendChild(tag);
+    selectedChargesDiv.appendChild(tag);
   });
 }
 
-// ================= GENERATE =================
-window.generate = function () {
+function removeCharge(i) {
+  selectedCharges.splice(i, 1);
+  renderCharges();
+}
 
-  const name = document.getElementById("suspectName").value || "Unknown";
-  const date = document.getElementById("date").value || "N/A";
-  const time = document.getElementById("time").value || "N/A";
-  const address = document.getElementById("address").value || "N/A";
+// ================= GENERATE =================
+function generate() {
+
+  const name = suspectName.value || "Unknown";
+  const date = dateInput.value || "N/A";
+  const time = timeInput.value || "N/A";
+  const address = addressInput.value || "N/A";
 
   let vehicle = "N/A";
-  if (document.getElementById("hasVehicle").checked) {
+  if (hasVehicle.checked) {
     vehicle = `${vehicleModel.value} | ${vehicleColor.value} | Plate ${vehiclePlate.value}`;
   }
 
-  // 🔴 charges coloridas corrigidas
   const charges = selectedCharges.length
     ? selectedCharges.map(c => {
         const color = c.classification === "Felony" ? "red" : "orange";
@@ -265,13 +275,17 @@ window.generate = function () {
   if (fingerprints.checked) processing += " Fingerprints collected.";
   if (dna.checked) processing += " DNA collected.";
 
-  const narrative = `
+  let narrative = narrativePreview.value;
+
+  if (!narrative) {
+    narrative = `
 I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
 
 Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
 
 The suspect was detained and processed according to standard LSSD procedures.${legal}
-  `.trim();
+    `.trim();
+  }
 
   const output = `
 [departmentmanual]
@@ -305,8 +319,20 @@ The suspect was detained and processed according to standard LSSD procedures.${l
 [sectionbody]${processing}[/sectionbody]
 `.trim();
 
-  document.getElementById("output").value = output;
-};
+  outputTextarea.value = output;
+}
+
+// ================= COPY =================
+function copyOutput() {
+  output.select();
+  document.execCommand("copy");
+}
+
+// ================= CLEAR =================
+function clearForm() {
+  localStorage.clear();
+  location.reload();
+}
 
 </script>
 
