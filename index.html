@@ -11,8 +11,6 @@
 <meta property="og:url" content="https://lobo-gen.github.io/lobo.github.io/">
 
 <meta name="theme-color" content="#2E3E2B">
-
-<!-- BÔNUS (melhora compatibilidade Discord/Twitter) -->
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" type="image/png" href="favicon.png">
@@ -61,16 +59,14 @@ textarea {
   cursor:pointer;
 }
 
-/* HEADER */
 .header {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin: 20px 0 30px 0; /* espaço embaixo pra não colar no card */
+  margin: 20px 0 30px 0;
   padding-bottom: 10px;
-
-  border-bottom: 2px solid #556B2F; /* linha estilo LSSD */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* sombra leve */
+  border-bottom: 2px solid #556B2F;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .header img {
@@ -86,7 +82,7 @@ textarea {
 <body>
 
 <div class="header">
-  <img src="sheriff.png" alt="LSSD Logo">
+  <img src="sheriff.png">
   <h2>LSSD Arrest Report Generator</h2>
 </div>
 
@@ -162,12 +158,11 @@ textarea {
 
 <div class="card">
 <h4>Evidence</h4>
-<textarea id="evidence" rows="5"
-placeholder="Quantity of seized drugs or weapons, links to evidence photographs"></textarea>
+<textarea id="evidence" rows="5"></textarea>
 </div>
 
 <div class="card">
-<h4>Narrative (editable)</h4>
+<h4>Narrative</h4>
 <textarea id="narrativePreview" rows="8"></textarea>
 </div>
 
@@ -188,39 +183,12 @@ placeholder="Quantity of seized drugs or weapons, links to evidence photographs"
 
 const $ = id => document.getElementById(id);
 
-// ================= LOCAL STORAGE =================
-document.querySelectorAll("input, textarea").forEach(el => {
-  if (!el.id) return;
-
-  const saved = localStorage.getItem(el.id);
-  if (saved !== null) {
-    if (el.type === "checkbox") el.checked = saved === "true";
-    else el.value = saved;
-  }
-
-  el.addEventListener("input", () => {
-    localStorage.setItem(el.id, el.type === "checkbox" ? el.checked : el.value);
-  });
-});
-
-// restore dynamic
-const savedCharges = localStorage.getItem("selectedCharges");
-if (savedCharges) {
-  selectedCharges = JSON.parse(savedCharges);
-}
-
-const wHTML = localStorage.getItem("witnessHTML");
-if (wHTML) $("witnessList").innerHTML = wHTML;
-
-const oHTML = localStorage.getItem("officerHTML");
-if (oHTML) $("officerList").innerHTML = oHTML;
-
-// ================= VEHICLE =================
+// VEHICLE TOGGLE
 $("hasVehicle").onchange = () => {
   $("vehicleFields").style.display = $("hasVehicle").checked ? "block" : "none";
 };
 
-// ================= OFFICERS =================
+// OFFICERS
 $("hasOfficers").onchange = () => {
   const show = $("hasOfficers").checked;
   $("officerList").style.display = show ? "block" : "none";
@@ -240,7 +208,7 @@ function addOfficer() {
   $("officerList").appendChild(div);
 }
 
-// ================= WITNESSES =================
+// WITNESSES
 function addWitness() {
   const div = document.createElement("div");
 
@@ -253,143 +221,56 @@ function addWitness() {
   $("witnessList").appendChild(div);
 }
 
-// ================= CHARGES =================
-let selectedCharges = [];
-let allCrimes = [];
-
-if (typeof crimesData !== "undefined") {
-  Object.values(crimesData).forEach(cat => {
-    cat.forEach(c => allCrimes.push(c));
-  });
-}
-
-$("chargeSearch").addEventListener("input", function() {
-  const dropdown = $("chargeDropdown");
-  dropdown.innerHTML = "";
-
-  const val = this.value.toLowerCase();
-  if (!val) return;
-
-  allCrimes
-    .filter(c => c.crime.toLowerCase().includes(val))
-    .slice(0, 10)
-    .forEach(c => {
-
-      const color = c.classification === "Felony" ? "red" : "orange";
-
-      const el = document.createElement("div");
-      el.innerHTML = `<span style="color:${color}">${c.crime} (${c.code})</span>`;
-      el.style.cursor = "pointer";
-
-      el.onclick = () => {
-        if (selectedCharges.some(x => x.code === c.code)) return;
-
-        selectedCharges.push(c);
-        renderCharges();
-        $("chargeSearch").value = "";
-        dropdown.innerHTML = "";
-      };
-
-      dropdown.appendChild(el);
-    });
-});
-
-// close dropdown
-document.addEventListener("click", e => {
-  if (!$("chargeSearch").contains(e.target)) {
-    $("chargeDropdown").innerHTML = "";
-  }
-});
-
-function renderCharges() {
-  const container = $("selectedCharges");
-  container.innerHTML = "";
-
-  selectedCharges.forEach((c, i) => {
-    const color = c.classification === "Felony" ? "red" : "orange";
-
-    const tag = document.createElement("span");
-    tag.className = "charge-tag";
-    tag.style.color = color;
-    tag.style.borderColor = color;
-
-    tag.innerHTML = `${c.crime} <b onclick="removeCharge(${i})">×</b>`;
-
-    container.appendChild(tag);
-  });
-}
-
-function removeCharge(i) {
-  selectedCharges.splice(i, 1);
-  renderCharges();
-}
-
-// ================= AUTO NARRATIVE =================
-let narrativeEdited = false;
-
-$("narrativePreview").addEventListener("input", () => {
-  narrativeEdited = $("narrativePreview").value.trim().length > 0;
-});
-
-function buildNarrative() {
-  const address = $("address").value || "Unknown location";
-  const date = $("date").value || "unknown date";
-  const time = $("time").value || "unknown time";
-
-  let legal = "";
-  if ($("miranda").checked) legal += " The suspect was Mirandized.";
-  if ($("medical").checked) legal += " The suspect received medical attention.";
-
-  return `I was involved in an incident at ${address} on ${date} at approximately ${time} hours.
-
-Upon arrival, I observed a situation requiring law enforcement intervention involving the listed suspect.
-
-The suspect was detained and processed according to standard LSSD procedures.${legal}`;
-}
-
-function updateNarrative() {
-  if (!narrativeEdited) {
-    $("narrativePreview").value = buildNarrative();
-  }
-}
-
-["address","date","time","miranda","medical"].forEach(id => {
-  $(id).addEventListener("input", updateNarrative);
-  $(id).addEventListener("change", updateNarrative);
-});
-
-updateNarrative();
-
 // ================= GENERATE =================
 function generate() {
 
   const name = $("suspectName").value || "Unknown";
-  const date = $("date").value || "N/A";
+  const rawDate = $("date").value;
+  const date = rawDate || "N/A";
   const time = $("time").value || "N/A";
   const address = $("address").value || "N/A";
+
+  const officerName = $("officerName").value || "";
+  const officerRank = $("officerRank").value || "";
+  const officerBadge = $("officerBadge").value || "";
+  const officerDivision = $("officerDivision").value || "";
+
+  function generateReportID() {
+    if (!officerName || !rawDate) return "XX000000";
+
+    const parts = officerName.trim().split(" ").filter(Boolean);
+    if (parts.length < 2) return "XX000000";
+
+    const initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+
+    const d = new Date(rawDate);
+    if (isNaN(d)) return "XX000000";
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear()).slice(-2);
+
+    return `${initials}${day}${month}${year}`;
+  }
+
+  const reportID = generateReportID();
 
   let vehicle = "N/A";
   if ($("hasVehicle").checked) {
     vehicle = `${$("vehicleModel").value} | ${$("vehicleColor").value} | Plate ${$("vehiclePlate").value}`;
   }
 
-  const charges = selectedCharges.length
-    ? selectedCharges.map(c => {
-        const color = c.classification === "Felony" ? "red" : "orange";
-        return `[color=${color}]- ${c.crime} (${c.code})[/color]`;
-      }).join("\n")
-    : "- None";
-
-  let officers = `- ${$("officerName").value} | ${$("officerRank").value} | Badge #${$("officerBadge").value} | ${$("officerDivision").value}`;
-
+  let additionalOfficers = "";
   document.querySelectorAll("#officerList div").forEach(el => {
     const n = el.querySelector(".officerName")?.value || "";
     const r = el.querySelector(".officerRank")?.value || "";
     const b = el.querySelector(".officerBadge")?.value || "";
     const d = el.querySelector(".officerDivision")?.value || "";
 
-    officers += `\n- ${n} | ${r} | Badge #${b} | ${d}`;
+    additionalOfficers += `- ${n} | ${r} | Badge #${b} | ${d}\n`;
   });
+
+  additionalOfficers = additionalOfficers.trim() || "- None";
 
   let witnesses = "";
   document.querySelectorAll("#witnessList div").forEach(el => {
@@ -397,7 +278,7 @@ function generate() {
     const p = el.querySelector(".witnessPhone")?.value || "";
     const i = el.querySelector(".witnessId")?.value || "";
 
-    witnesses += `- ${n} | Phone Number ${p} | ID/License N° ${i}\n`;
+    witnesses += `- ${n} | Phone ${p} | ID ${i}\n`;
   });
 
   witnesses = witnesses.trim() || "- None";
@@ -410,56 +291,78 @@ function generate() {
   const narrative = $("narrativePreview").value;
   const evidence = $("evidence").value || "None";
 
-  // save dynamic
-  localStorage.setItem("selectedCharges", JSON.stringify(selectedCharges));
-  localStorage.setItem("witnessHTML", $("witnessList").innerHTML);
-  localStorage.setItem("officerHTML", $("officerList").innerHTML);
-
   const output = `
-[departmentmanual]
-[/departmentmanual]
+[b][size=200]ARREST REPORT - ${reportID}[/size][/b]
 
-[sectionheader][b][size=200][center]ARREST REPORT[/center][/size][/b][/sectionheader]
+[table][tr]
+[td][b]SUSPECT NAME:[/b] ${name}[/td]
+[td][b]DATE:[/b] ${date}[/td]
+[td][b]TIME:[/b] ${time}[/td]
+[/tr][/table]
 
-[sectionheader][b]SUSPECT INFORMATION[/b][/sectionheader]
-[sectionbody][b]Name:[/b] ${name}
-[b]Vehicle:[/b] ${vehicle}
-[/sectionbody]
+[table][tr]
+[td][b]LOCATION:[/b] ${address}[/td]
+[td][b]VEHICLE:[/b] ${vehicle}[/td]
+[/tr][/table]
 
-[sectionheader][b]INCIDENT INFORMATION[/b][/sectionheader]
-[sectionbody][b]Date:[/b] ${date}
-[b]Time:[/b] ${time}
-[b]Location:[/b] ${address}[/sectionbody]
+[table][tr]
+[td][b]OFFICER NAME:[/b] ${officerName}[/td]
+[td][b]RANK:[/b] ${officerRank}[/td]
+[td][b]BADGE #:[/b] ${officerBadge}[/td]
+[td][b]DIVISION:[/b] ${officerDivision}[/td]
+[/tr][/table]
 
-[sectionheader][b]CHARGES[/b][/sectionheader]
-[sectionbody]${charges}[/sectionbody]
+[table][tr]
+[td][b]ADDITIONAL OFFICERS[/b]
 
-[sectionheader][b]EVIDENCE[/b][/sectionheader]
-[sectionbody]${evidence}[/sectionbody]
+${additionalOfficers}
 
-[sectionheader][b]NARRATIVE[/b][/sectionheader]
-[sectionbody]${narrative}[/sectionbody]
+[/td]
+[/tr][/table]
 
-[sectionheader][b]OFFICERS[/b][/sectionheader]
-[sectionbody]${officers}[/sectionbody]
+[table][tr]
+[td][b]CHARGES[/b][/td]
+[td][b]EVIDENCE[/b][/td]
+[/tr]
+[tr]
+[td]
+- None
+[/td]
+[td]
+${evidence}
+[/td]
+[/tr][/table]
 
-[sectionheader][b]WITNESSES[/b][/sectionheader]
-[sectionbody]${witnesses}[/sectionbody]
+[table][tr]
+[td][b]WITNESSES[/b][/td]
+[td][b]PROCESSING[/b][/td]
+[/tr]
+[tr]
+[td]
+${witnesses}
+[/td]
+[td]
+${processing}
+[/td]
+[/tr][/table]
 
-[sectionheader][b]PROCESSING[/b][/sectionheader]
-[sectionbody]${processing}[/sectionbody]
+[table][tr]
+[td][b]NARRATIVE[/b]
+
+${narrative}
+
+[/td]
+[/tr][/table]
 `.trim();
 
   $("output").value = output;
 }
 
-// ================= COPY =================
 function copyOutput() {
   $("output").select();
   document.execCommand("copy");
 }
 
-// ================= CLEAR =================
 function clearForm() {
   localStorage.clear();
   location.reload();
